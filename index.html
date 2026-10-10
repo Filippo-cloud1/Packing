@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#12161c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Packing">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+<title>Packing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: one-column phone app — day bar on top, big tap tiles per client, bottom tab bar */
+:root{
+  --bg:#12161c; --panel:#1b2129; --panel-2:#232a34; --line:#2e3742;
+  --fg:#e9edf2; --muted:#8c97a5; --accent:#ff7a3d; --accent-ink:#1a0d05;
+  --ok:#5fd39a; --danger:#ff5d5d;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;-webkit-tap-highlight-color:transparent}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:12px 96px;display:flex;flex-direction:column;gap:16px}
+
+/* day bar */
+.daybar{display:flex;align-items:center;gap:8px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding-block:8px;z-index:2}
+.navbtn{width:44px;height:44px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-size:20px;flex:none}
+.daylabel{flex:1;min-width:0;text-align:center}
+.daylabel .eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.daylabel .date{font-family:var(--display);font-weight:600;font-size:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.daylabel input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+
+.totals{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.totals div{background:var(--panel);padding:12px 16px}
+.totals .k{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.totals .v{font-family:var(--display);font-weight:700;font-size:40px;line-height:1.05;font-variant-numeric:tabular-nums}
+.totals .v.eur{color:var(--accent)}
+
+.banner{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px dashed var(--accent);border-radius:12px;padding:10px 14px;color:var(--muted);font-size:14px}
+.banner button{background:none;border:0;color:var(--accent);font-weight:600;padding:4px 0}
+
+/* client tiles */
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tile{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:118px;padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--panel);text-align:left;transition:transform .08s,background .2s}
+.tile:active{transform:scale(.97)}
+.tile.bump{background:var(--panel-2)}
+.tile .name{font-weight:600;font-size:17px;line-height:1.2;overflow-wrap:anywhere;padding-right:40px}
+.tile .count{font-family:var(--display);font-weight:700;font-size:46px;line-height:1;margin-top:auto;font-variant-numeric:tabular-nums}
+.tile.zero .count{color:var(--muted)}
+.tile .sub{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tile .plus{position:absolute;right:12px;bottom:12px;width:34px;height:34px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700;font-size:20px}
+.minus{position:absolute;top:8px;right:8px;width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--muted);font-size:20px;line-height:1;display:grid;place-items:center}
+.tile-wrap{position:relative}
+.addtile{min-height:118px;border-radius:14px;border:1px dashed var(--line);background:none;color:var(--muted);font-weight:600}
+
+.empty{color:var(--muted);text-align:center;padding:24px 8px;border:1px dashed var(--line);border-radius:14px}
+
+/* sections */
+h2{font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:8px 0 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row .grow{flex:1;min-width:0;overflow-wrap:anywhere}
+.row .num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.row.total{background:var(--panel-2);font-weight:600}
+.row.total .num{font-family:var(--display);font-size:22px;color:var(--accent)}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:8px 14px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+
+.btn{border:1px solid var(--line);background:var(--panel-2);border-radius:10px;padding:10px 14px;font-weight:600}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 45%,var(--line))}
+.btn.ghost{background:none}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+
+input[type=text],input[type=number],textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--fg);font:inherit}
+textarea{min-height:110px;font-size:12px;font-family:ui-monospace,monospace}
+label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted)}
+.form{display:flex;flex-direction:column;gap:12px;padding:14px}
+.form .two{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:10px}
+.price-in{width:88px!important;text-align:right}
+
+/* bottom tabs */
+.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);z-index:3}
+.tabs .in{display:flex;width:100%;max-width:560px}
+.tabs button{flex:1;min-width:0;background:none;border:0;padding:12px 2px 14px;font-family:var(--display);font-weight:600;font-size:14px;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);border-top:2px solid transparent}
+.tabs button[aria-selected="true"]{color:var(--fg);border-top-color:var(--accent)}
+
+/* calendar */
+.calhead{display:flex;align-items:center;gap:8px}
+.calhead .m{flex:1;text-align:center;font-family:var(--display);font-weight:600;font-size:22px;text-transform:capitalize}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.cal .wd{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:center;padding-block:4px}
+.cal .d{position:relative;aspect-ratio:1/1.05;max-width:100%;border-radius:10px;border:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:6px;font-variant-numeric:tabular-nums;font-size:15px}
+.cal .d.out{visibility:hidden}
+.cal .d.plan{background:color-mix(in srgb,var(--accent) 22%,var(--panel));border-color:var(--accent)}
+.cal .d.today{box-shadow:inset 0 0 0 2px var(--fg)}
+.cal .d.sel{outline:2px solid var(--accent);outline-offset:1px}
+.cal .d .n{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:600;color:var(--ok)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;border-radius:3px;border:1px solid var(--accent);background:color-mix(in srgb,var(--accent) 22%,var(--panel))}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border-bottom:1px solid var(--line)}
+.switch input{width:22px;height:22px;accent-color:var(--accent)}
+a.btn{text-decoration:none;display:inline-block}
+.pill{display:inline-block;border-radius:999px;padding:3px 10px;font-size:13px;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+.pill.due{background:color-mix(in srgb,var(--danger) 18%,var(--panel));color:var(--danger)}
+.pill.ok{background:color-mix(in srgb,var(--ok) 16%,var(--panel));color:var(--ok)}
+.pill.cred{background:var(--panel-2);color:var(--muted)}
+.paybox{display:flex;flex-direction:column;gap:10px;padding:0 14px 14px;border-top:1px dashed var(--line);padding-top:12px}
+
+.toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:600;font-size:14px;z-index:5;max-width:calc(100% - 32px)}
+@media (prefers-reduced-motion:reduce){.tile{transition:none}.tile:active{transform:none}}
+</style>
+</head>
+<body>
+
+
+<div class="app" id="app"></div>
+<nav class="tabs" role="tablist"><div class="in">
+  <button role="tab" id="t-conta" data-tab="conta">Conta</button>
+  <button role="tab" id="t-riep" data-tab="riep">Riepilogo</button>
+  <button role="tab" id="t-pag" data-tab="pag">Pagamenti</button>
+  <button role="tab" id="t-cal" data-tab="cal">Calendario</button>
+  <button role="tab" id="t-cli" data-tab="cli">Clienti</button>
+</div></nav>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+const KEY='ripiegamenti.v1';
+const DEFAULT_PRICE=6;
+const eur=n=>n.toLocaleString('it-IT',{style:'currency',currency:'EUR'});
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const pad=n=>String(n).padStart(2,'0');
+const dayKey=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parseDay=k=>{const[a,b,c]=k.split('-').map(Number);return new Date(a,b-1,c)};
+const today=()=>dayKey(new Date());
+const fmtDay=k=>{const s=parseDay(k).toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});return s.charAt(0).toUpperCase()+s.slice(1)};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function load(){try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch(e){}return null}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+function sample(){
+  const c=[{id:uid(),name:'Marco (esempio)',price:6},{id:uid(),name:'Scuola Skydive (esempio)',price:6},{id:uid(),name:'Giulia (esempio)',price:8}];
+  const d=today(),e=[];const add=(cl,n)=>{for(let i=0;i<n;i++)e.push({id:uid(),clientId:cl.id,day:d,ts:Date.now()-i*6e5,price:cl.price})};
+  add(c[0],4);add(c[1],7);add(c[2],1);
+  return {clients:c,entries:e,payments:[{id:uid(),clientId:c[0].id,day:d,ts:Date.now(),amount:12,method:'Contanti'}],sample:true};
+}
+let S=load()||sample();
+S.planned=S.planned||{};
+S.payments=S.payments||[];
+const METHODS=['Contanti','Bonifico','PayPal','Satispay','Altro'];
+let view={tab:'conta',day:today(),range:'day',editing:null,adding:false,confirm:null,importOpen:false,calMonth:today().slice(0,7),calSel:today()};
+
+const clientById=id=>S.clients.find(c=>c.id===id);
+const entriesOn=day=>S.entries.filter(e=>e.day===day);
+function inRange(e){
+  if(view.range==='day')return e.day===view.day;
+  if(view.range==='all')return true;
+  const d=parseDay(view.day),x=parseDay(e.day);
+  if(view.range==='month')return x.getFullYear()===d.getFullYear()&&x.getMonth()===d.getMonth();
+  if(view.range==='week'){const m=new Date(d);m.setDate(d.getDate()-((d.getDay()+6)%7));const s=new Date(m);s.setDate(m.getDate()+7);return x>=m&&x<s}
+}
+function summarize(list){
+  const by={};list.forEach(e=>{const b=by[e.clientId]||(by[e.clientId]={n:0,tot:0});b.n++;b.tot+=e.price});
+  const rows=Object.entries(by).map(([id,v])=>({name:(clientById(id)||{name:'Cliente eliminato'}).name,...v})).sort((a,b)=>b.n-a.n);
+  return {rows,n:list.length,tot:list.reduce((s,e)=>s+e.price,0)};
+}
+
+let toastT;function toast(m){const t=document.getElementById('toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,1800)}
+
+function dayBar(){
+  const sum=summarize(entriesOn(view.day));
+  const isToday=view.day===today();
+  return `<div class="daybar">
+    <button class="navbtn" data-act="prev" aria-label="Giorno precedente">‹</button>
+    <div class="daylabel"><div class="eyebrow">${isToday?'Giornata di oggi':'Giornata'}</div><div class="date">${fmtDay(view.day)}</div></div>
+    <button class="navbtn" data-act="next" aria-label="Giorno successivo" ${isToday?'disabled style="opacity:.35"':''}>›</button>
+  </div>
+  <div class="totals"><div><div class="k">Ripiegamenti</div><div class="v">${sum.n}</div></div><div><div class="k">Da incassare</div><div class="v eur">${eur(sum.tot)}</div></div></div>
+  ${!isToday?`<div class="banner">Stai guardando un giorno passato.<button data-act="today">Torna a oggi</button></div>`:''}`;
+}
+
+function renderConta(){
+  const day=entriesOn(view.day);
+  const tiles=S.clients.map(c=>{
+    const n=day.filter(e=>e.clientId===c.id).length;
+    return `<div class="tile-wrap"><button class="tile ${n?'':'zero'}" data-act="plus" data-id="${c.id}" id="tile-${c.id}" aria-label="Aggiungi un ripiegamento per ${esc(c.name)}">
+      <span class="name">${esc(c.name)}</span><span class="count">${n}</span><span class="sub">${eur(n?day.filter(e=>e.clientId===c.id).reduce((s,e)=>s+e.price,0):0)}</span><span class="plus" aria-hidden="true">+</span>
+    </button>${n?`<button class="minus" data-act="minus" data-id="${c.id}" aria-label="Togli l'ultimo ripiegamento di ${esc(c.name)}">−</button>`:''}</div>`}).join('');
+  return `${dayBar()}
+  ${S.sample?`<div class="banner">Questi sono dati di esempio.<button data-act="clearSample">Cancella e inizia</button></div>`:''}
+  ${view.adding?addForm():''}
+  ${S.clients.length?`<div class="tiles">${tiles}<button class="addtile" data-act="addOpen">+ Nuovo cliente</button></div>`
+   :`<div class="empty">Nessun cliente ancora.<br>Aggiungi il primo per iniziare a contare.<div class="actions" style="justify-content:center;margin-top:12px"><button class="btn primary" data-act="addOpen">+ Nuovo cliente</button></div></div>`}`;
+}
+function addForm(){
+  return `<div class="card"><form class="form" id="addForm">
+    <div class="two"><label class="f">Nome cliente<input type="text" id="newName" required autocomplete="off"></label>
+    <label class="f">Prezzo €<input type="number" id="newPrice" step="0.5" min="0" value="${DEFAULT_PRICE}"></label></div>
+    <div class="actions"><button class="btn primary" type="submit">Aggiungi</button><button class="btn ghost" type="button" data-act="addClose">Annulla</button></div>
+  </form></div>`;
+}
+
+function renderRiep(){
+  const list=S.entries.filter(inRange);
+  const sum=summarize(list);
+  const R=[['day','Giornata'],['week','Settimana'],['month','Mese'],['all','Tutto']];
+  const seg=`<div class="seg">${R.map(([k,l])=>`<button data-act="range" data-r="${k}" aria-pressed="${view.range===k}">${l}</button>`).join('')}</div>`;
+  const table=sum.n?`<div class="card">${sum.rows.map(r=>`<div class="row"><span class="grow">${esc(r.name)}</span><span class="num muted">${r.n} ×</span><span class="num" style="min-width:84px">${eur(r.tot)}</span></div>`).join('')}
+    <div class="row total"><span class="grow">Totale · ${sum.n} ripiegamenti</span><span class="num">${eur(sum.tot)}</span></div></div>
+    <div class="actions"><button class="btn" data-act="copySum">Copia riepilogo</button></div>`
+    :`<div class="empty">Nessun ripiegamento in questo periodo.</div>`;
+  let detail='';
+  if(view.range==='day'&&list.length){
+    const items=[...list].sort((a,b)=>b.ts-a.ts).map(e=>{
+      const c=clientById(e.clientId);const t=new Date(e.ts);
+      return `<div class="row"><span class="num muted small">${pad(t.getHours())}:${pad(t.getMinutes())}</span><span class="grow">${esc(c?c.name:'Cliente eliminato')}</span>
+      <input type="number" class="price-in" id="p-${e.id}" data-price="${e.id}" step="0.5" min="0" value="${e.price}" aria-label="Prezzo">
+      <button class="minus" style="position:static" data-act="delEntry" data-id="${e.id}" aria-label="Elimina">×</button></div>`}).join('');
+    detail=`<h2>Dettaglio giornata</h2><p class="muted small" style="margin:0">Per un caso particolare cambia il prezzo del singolo ripiegamento.</p><div class="card">${items}</div>`;
+  }
+  return `${dayBar()}<h2>Totali per cliente</h2>${seg}${table}${detail}`;
+}
+
+function renderCli(){
+  const rows=S.clients.map(c=>{
+    if(view.confirm===c.id){
+      const n=S.entries.filter(e=>e.clientId===c.id).length;
+      return `<div class="row" style="flex-wrap:wrap"><span class="grow">Eliminare <b>${esc(c.name)}</b>${n?` e i suoi ${n} ripiegamenti`:''}?</span>
+      <div class="actions"><button class="btn danger" data-act="delCli" data-id="${c.id}">Elimina</button><button class="btn ghost" data-act="cancelDel">Annulla</button></div></div>`}
+    return `<div class="row"><input type="text" id="n-${c.id}" data-name="${c.id}" value="${esc(c.name)}" aria-label="Nome">
+      <input type="number" class="price-in" id="cp-${c.id}" data-cprice="${c.id}" step="0.5" min="0" value="${c.price}" aria-label="Prezzo standard">
+      <button class="minus" style="position:static;flex:none" data-act="askDel" data-id="${c.id}" aria-label="Elimina cliente">×</button></div>`}).join('');
+  return `<h2>Clienti e prezzo standard</h2>
+  <p class="muted small" style="margin:0">Il prezzo vale per i nuovi ripiegamenti. Quelli già segnati non cambiano.</p>
+  ${view.adding?addForm():''}
+  ${S.clients.length?`<div class="card">${rows}</div>`:`<div class="empty">Nessun cliente.</div>`}
+  <div class="actions"><button class="btn primary" data-act="addOpen">+ Nuovo cliente</button></div>
+  <h2>Copia di sicurezza</h2>
+  <p class="muted small" style="margin:0">I dati restano su questo telefono. Ogni tanto copia il backup e incollalo in una nota o mandalo a te stesso.</p>
+  <div class="actions"><button class="btn" data-act="exportData">Copia backup</button><button class="btn" data-act="importOpen">Ripristina backup</button></div>
+  ${view.importOpen?`<div class="card"><div class="form"><label class="f">Incolla qui il backup<textarea id="importBox"></textarea></label>
+  <div class="actions"><button class="btn primary" data-act="importDo">Ripristina</button><button class="btn ghost" data-act="importClose">Annulla</button></div>
+  <span class="muted small">Il ripristino sostituisce tutti i dati attuali.</span></div></div>`:''}`;
+}
+
+const compact=k=>k.replace(/-/g,'');
+function nextDay(k){const d=parseDay(k);d.setDate(d.getDate()+1);return dayKey(d)}
+function gcalLink(k){
+  const note=S.planned[k]||'';
+  const p=new URLSearchParams({action:'TEMPLATE',text:'Ripiegamenti'+(note?' – '+note:''),dates:compact(k)+'/'+compact(nextDay(k)),details:'Giornata di lavoro segnata in Packing'});
+  return 'https://calendar.google.com/calendar/render?'+p.toString();
+}
+function icsText(keys){
+  const stamp=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z';
+  const ev=keys.map(k=>['BEGIN:VEVENT','UID:packing-'+k+'@packing','DTSTAMP:'+stamp,'DTSTART;VALUE=DATE:'+compact(k),'DTEND;VALUE=DATE:'+compact(nextDay(k)),'SUMMARY:Ripiegamenti'+(S.planned[k]?' - '+S.planned[k].replace(/[,;\n]/g,' '):''),'END:VEVENT'].join('\r\n'));
+  return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Packing//IT',...ev,'END:VCALENDAR'].join('\r\n');
+}
+function renderCal(){
+  const [y,m]=view.calMonth.split('-').map(Number);
+  const first=new Date(y,m-1,1),days=new Date(y,m,0).getDate(),lead=(first.getDay()+6)%7;
+  const counts={};S.entries.forEach(e=>{if(e.day.startsWith(view.calMonth))counts[e.day]=(counts[e.day]||0)+1});
+  const t=today();
+  let cells=['Lun','Mar','Mer','Gio','Ven','Sab','Dom'].map(w=>`<div class="wd">${w}</div>`).join('');
+  for(let i=0;i<lead;i++)cells+=`<div class="d out"></div>`;
+  for(let d=1;d<=days;d++){const k=view.calMonth+'-'+pad(d);
+    cells+=`<button class="d ${k in S.planned?'plan':''} ${k===t?'today':''} ${k===view.calSel?'sel':''}" data-act="calPick" data-k="${k}" aria-label="${fmtDay(k)}">${d}${counts[k]?`<span class="n">${counts[k]}</span>`:''}</button>`}
+  const k=view.calSel,planned=k in S.planned,n=S.entries.filter(e=>e.day===k).length;
+  const upcoming=Object.keys(S.planned).filter(x=>x>=t).sort();
+  const monthName=first.toLocaleDateString('it-IT',{month:'long',year:'numeric'});
+  return `<div class="calhead"><button class="navbtn" data-act="calPrev" aria-label="Mese precedente">‹</button><div class="m">${monthName}</div><button class="navbtn" data-act="calNext" aria-label="Mese successivo">›</button></div>
+  <div class="cal">${cells}</div>
+  <div class="legend"><span><i class="sw"></i>Giorno di lavoro</span><span><b style="color:var(--ok)">12</b> ripiegamenti fatti</span></div>
+  <div class="card">
+    <label class="switch"><span><b>${fmtDay(k)}</b><br><span class="muted small">${n?n+' ripiegamenti segnati':'Nessun ripiegamento segnato'}</span></span>
+      <input type="checkbox" id="planToggle" ${planned?'checked':''} aria-label="Giorno di lavoro"></label>
+    ${planned?`<div class="form"><label class="f">Nota (posto, cliente, orario)<input type="text" id="planNote" value="${esc(S.planned[k])}" placeholder="Es. Aviosuperficie, dalle 9"></label>
+      <div class="actions"><a class="btn" href="${gcalLink(k)}" target="_blank" rel="noopener">Aggiungi a Google Calendar</a></div></div>`:''}
+    ${k<=t?`<div class="form" style="padding-top:${planned?0:14}px"><div class="actions"><button class="btn primary" data-act="calGo">Apri il contatore di questo giorno</button></div></div>`:''}
+  </div>
+  <h2>Prossimi giorni di lavoro</h2>
+  ${upcoming.length?`<div class="card">${upcoming.map(x=>`<div class="row"><span class="grow">${fmtDay(x)}${S.planned[x]?`<br><span class="muted small">${esc(S.planned[x])}</span>`:''}</span><a class="btn ghost small" href="${gcalLink(x)}" target="_blank" rel="noopener">+ Calendario</a></div>`).join('')}</div>
+  <div class="actions"><button class="btn" data-act="icsAll">Esporta tutti (.ics)</button></div>
+  <p class="muted small" style="margin:0">Il file .ics si apre con il calendario del telefono (Google, Samsung o iPhone) e aggiunge tutti i giorni in un colpo. Funziona nella versione installata sul telefono.</p>`
+  :`<div class="empty">Tocca un giorno sul calendario e attiva "Giorno di lavoro".</div>`}`;
+}
+
+function balance(cid){
+  const owed=S.entries.filter(e=>e.clientId===cid).reduce((s,e)=>s+e.price,0);
+  const paid=S.payments.filter(p=>p.clientId===cid).reduce((s,p)=>s+p.amount,0);
+  return {owed,paid,due:Math.round((owed-paid)*100)/100};
+}
+function renderPag(){
+  const list=S.clients.map(c=>({c,...balance(c.id)})).sort((a,b)=>b.due-a.due);
+  const totDue=list.reduce((s,x)=>s+Math.max(0,x.due),0);
+  const debtors=list.filter(x=>x.due>0).length;
+  const rows=list.map(({c,owed,paid,due})=>{
+    const pill=due>0?`<span class="pill due">Deve ${eur(due)}</span>`:due<0?`<span class="pill cred">Anticipo ${eur(-due)}</span>`:`<span class="pill ok">In pari</span>`;
+    const open=view.payFor===c.id;
+    return `<div><div class="row"><span class="grow">${esc(c.name)}<br><span class="muted small">Lavoro ${eur(owed)} · Pagato ${eur(paid)}</span></span>${pill}</div>
+    ${open?`<div class="paybox">
+      <label class="f">Importo ricevuto €<input type="number" id="payAmount" step="0.5" min="0" value="${due>0?due:''}"></label>
+      <div class="seg">${METHODS.map(m=>`<button data-act="payMethod" data-m="${m}" aria-pressed="${view.payMethod===m}">${m}</button>`).join('')}</div>
+      <div class="actions"><button class="btn primary" data-act="payDo" data-id="${c.id}">Registra pagamento</button><button class="btn ghost" data-act="payClose">Annulla</button></div>
+    </div>`:`<div style="padding:0 14px 12px" class="actions"><button class="btn" data-act="payOpen" data-id="${c.id}">+ Pagamento</button></div>`}</div>`}).join('<div style="border-top:1px solid var(--line)"></div>');
+  const hist=[...S.payments].sort((a,b)=>b.ts-a.ts).slice(0,30).map(p=>{const c=clientById(p.clientId);
+    return `<div class="row"><span class="grow">${esc(c?c.name:'Cliente eliminato')}<br><span class="muted small">${fmtDay(p.day)} · ${esc(p.method)}</span></span><span class="num">${eur(p.amount)}</span>
+    <button class="minus" style="position:static;flex:none" data-act="delPay" data-id="${p.id}" aria-label="Elimina pagamento">×</button></div>`}).join('');
+  return `<div class="totals"><div><div class="k">Da incassare</div><div class="v eur">${eur(totDue)}</div></div><div><div class="k">Clienti in debito</div><div class="v">${debtors}</div></div></div>
+  <h2>Chi deve pagare</h2>
+  <p class="muted small" style="margin:0">Il saldo considera tutti i ripiegamenti segnati meno i pagamenti ricevuti.</p>
+  ${S.clients.length?`<div class="card">${rows}</div>`:`<div class="empty">Aggiungi un cliente per tenere i conti.</div>`}
+  <h2>Ultimi pagamenti</h2>
+  ${hist?`<div class="card">${hist}</div>`:`<div class="empty">Nessun pagamento registrato.</div>`}`;
+}
+
+function render(){
+  const app=document.getElementById('app');
+  app.innerHTML=view.tab==='conta'?renderConta():view.tab==='riep'?renderRiep():view.tab==='cal'?renderCal():view.tab==='pag'?renderPag():renderCli();
+  document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===view.tab));
+  if(view.adding){const i=document.getElementById('newName');i&&i.focus()}
+}
+
+function shiftDay(n){const d=parseDay(view.day);d.setDate(d.getDate()+n);const k=dayKey(d);if(k>today())return;view.day=k;render()}
+function copy(text,msg){
+  const done=()=>toast(msg);
+  try{navigator.clipboard.writeText(text).then(done,()=>fallback())}catch(e){fallback()}
+  function fallback(){const t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();try{document.execCommand('copy');done()}catch(e){toast('Copia non riuscita')}t.remove()}
+}
+function summaryText(){
+  const list=S.entries.filter(inRange),s=summarize(list);
+  const label={day:fmtDay(view.day),week:'Settimana del '+fmtDay(view.day),month:parseDay(view.day).toLocaleDateString('it-IT',{month:'long',year:'numeric'}),all:'Totale complessivo'}[view.range];
+  return `Ripiegamenti – ${label}\n`+s.rows.map(r=>`${r.name}: ${r.n} × = ${eur(r.tot)}`).join('\n')+`\nTOTALE: ${s.n} ripiegamenti = ${eur(s.tot)}`;
+}
+
+document.addEventListener('click',ev=>{
+  const tab=ev.target.closest('.tabs button');if(tab){view.tab=tab.dataset.tab;view.adding=false;view.confirm=null;render();return}
+  const b=ev.target.closest('[data-act]');if(!b)return;
+  const a=b.dataset.act,id=b.dataset.id;
+  switch(a){
+    case 'prev':shiftDay(-1);break;
+    case 'next':shiftDay(1);break;
+    case 'today':view.day=today();render();break;
+    case 'plus':{const c=clientById(id);const now=new Date();const ts=view.day===today()?now.getTime():parseDay(view.day).setHours(12,0,0,0);
+      S.entries.push({id:uid(),clientId:id,day:view.day,ts,price:c.price});save();render();
+      const t=document.getElementById('tile-'+id);if(t){t.classList.add('bump');setTimeout(()=>t.classList.remove('bump'),180)}
+      try{navigator.vibrate&&navigator.vibrate(15)}catch(e){}break}
+    case 'minus':{const l=S.entries.filter(e=>e.clientId===id&&e.day===view.day).sort((a,b)=>b.ts-a.ts)[0];
+      if(l){S.entries=S.entries.filter(e=>e!==l);save();render();toast('Tolto 1 ripiegamento')}break}
+    case 'clearSample':S={clients:[],entries:[],planned:{},payments:[]};save();view.adding=true;render();break;
+    case 'addOpen':view.adding=true;render();break;
+    case 'addClose':view.adding=false;render();break;
+    case 'range':view.range=b.dataset.r;render();break;
+    case 'copySum':copy(summaryText(),'Riepilogo copiato');break;
+    case 'delEntry':S.entries=S.entries.filter(e=>e.id!==id);save();render();break;
+    case 'askDel':view.confirm=id;render();break;
+    case 'cancelDel':view.confirm=null;render();break;
+    case 'delCli':S.clients=S.clients.filter(c=>c.id!==id);S.entries=S.entries.filter(e=>e.clientId!==id);S.payments=S.payments.filter(p=>p.clientId!==id);view.confirm=null;save();render();break;
+    case 'calPrev':case 'calNext':{const[y,m]=view.calMonth.split('-').map(Number);const d=new Date(y,m-1+(a==='calNext'?1:-1),1);view.calMonth=d.getFullYear()+'-'+pad(d.getMonth()+1);render();break}
+    case 'payOpen':view.payFor=id;view.payMethod=view.payMethod||'Contanti';render();const pa=document.getElementById('payAmount');pa&&pa.focus();break;
+    case 'payClose':view.payFor=null;render();break;
+    case 'payMethod':view.payMethod=b.dataset.m;document.querySelectorAll('[data-act="payMethod"]').forEach(x=>x.setAttribute('aria-pressed',x===b));break;
+    case 'payDo':{const v=parseFloat(document.getElementById('payAmount').value);if(isNaN(v)||v<=0){toast('Inserisci un importo');break}
+      S.payments.push({id:uid(),clientId:id,day:today(),ts:Date.now(),amount:v,method:view.payMethod||'Contanti'});save();view.payFor=null;render();toast('Pagamento registrato');break}
+    case 'delPay':S.payments=S.payments.filter(p=>p.id!==id);save();render();break;
+    case 'calPick':view.calSel=b.dataset.k;render();break;
+    case 'calGo':view.day=view.calSel;view.tab='conta';render();break;
+    case 'icsAll':{const keys=Object.keys(S.planned).filter(x=>x>=today()).sort();
+      try{const url=URL.createObjectURL(new Blob([icsText(keys)],{type:'text/calendar'}));const l=document.createElement('a');l.href=url;l.download='packing-giorni.ics';document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);toast('File calendario creato')}catch(e){toast('Esportazione non disponibile qui')}break}
+    case 'exportData':copy(JSON.stringify({clients:S.clients,entries:S.entries,planned:S.planned,payments:S.payments}),'Backup copiato');break;
+    case 'importOpen':view.importOpen=true;render();break;
+    case 'importClose':view.importOpen=false;render();break;
+    case 'importDo':{try{const d=JSON.parse(document.getElementById('importBox').value);if(!Array.isArray(d.clients)||!Array.isArray(d.entries))throw 0;
+      S={clients:d.clients,entries:d.entries,planned:d.planned||{},payments:d.payments||[]};save();view.importOpen=false;render();toast('Backup ripristinato')}catch(e){toast('Testo non valido: incolla il backup completo')}break}
+  }
+});
+document.addEventListener('submit',ev=>{
+  if(ev.target.id!=='addForm')return;ev.preventDefault();
+  const name=document.getElementById('newName').value.trim();if(!name)return;
+  const p=parseFloat(document.getElementById('newPrice').value);
+  if(S.sample){S={clients:[],entries:[],planned:{},payments:[]}}
+  S.clients.push({id:uid(),name,price:isNaN(p)?DEFAULT_PRICE:p});save();view.adding=false;render();toast(name+' aggiunto');
+});
+document.addEventListener('change',ev=>{
+  const t=ev.target,v=parseFloat(t.value);
+  if(t.dataset.price){const e=S.entries.find(x=>x.id===t.dataset.price);if(e&&!isNaN(v)){e.price=v;save();render()}}
+  if(t.dataset.cprice){const c=clientById(t.dataset.cprice);if(c&&!isNaN(v)){c.price=v;save();toast('Prezzo aggiornato')}}
+  if(t.id==='planToggle'){if(t.checked)S.planned[view.calSel]=S.planned[view.calSel]||'';else delete S.planned[view.calSel];save();render();return}
+  if(t.id==='planNote'){S.planned[view.calSel]=t.value.trim();save();render();return}
+  if(t.dataset.name){const c=clientById(t.dataset.name);const n=t.value.trim();if(c&&n){c.name=n;save()}}
+});
+render();
+})();
+</script>
+
+<script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}</script>
+</body>
+</html>
