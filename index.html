@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#12161c">
+<meta name="theme-color" content="#0b1a2e">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,15 +16,35 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
 <style>
-/* Layout: one-column phone app — day bar on top, big tap tiles per client, bottom tab bar */
+/* Layout: one-column phone app — brand header, sticky day bar, big tap tiles per client, icon tab bar.
+   Palette: night sky navy + canopy light-blue (from the icon); orange only for money owed. */
 :root{
-  --bg:#12161c; --panel:#1b2129; --panel-2:#232a34; --line:#2e3742;
-  --fg:#e9edf2; --muted:#8c97a5; --accent:#ff7a3d; --accent-ink:#1a0d05;
-  --ok:#5fd39a; --danger:#ff5d5d;
+  --bg:#0b1a2e; --panel:#122640; --panel-2:#19324f; --line:#24405f;
+  --fg:#eaf2fa; --muted:#8ea7c0; --accent:#2cc0e8; --accent-ink:#03202c; --accent-soft:rgba(44,192,232,.16);
+  --warn:#ff8a4c; --ok:#4fd49a; --danger:#ff6b6b; --bar:#0e2036;
   --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
   --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:dark;
 }
+@media (prefers-color-scheme: light){
+  :root:not([data-skin="dark"]){
+    --bg:#edf3f8; --panel:#ffffff; --panel-2:#e2ecf5; --line:#cddbe8;
+    --fg:#0c2136; --muted:#567089; --accent:#0a8ec0; --accent-ink:#ffffff; --accent-soft:rgba(10,142,192,.12);
+    --warn:#d4601c; --ok:#178a55; --danger:#c93636; --bar:#ffffff; color-scheme:light;
+  }
+}
+:root[data-skin="light"]{
+  --bg:#edf3f8; --panel:#ffffff; --panel-2:#e2ecf5; --line:#cddbe8;
+  --fg:#0c2136; --muted:#567089; --accent:#0a8ec0; --accent-ink:#ffffff; --accent-soft:rgba(10,142,192,.12);
+  --warn:#d4601c; --ok:#178a55; --danger:#c93636; --bar:#ffffff; color-scheme:light;
+}
+
+/* brand header */
+.top{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:14px 0;display:flex;align-items:center;gap:10px}
+.top svg.logo{width:34px;height:34px;flex:none}
+.top .brand{flex:1;font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:.02em}
+.themebtn{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--panel);display:grid;place-items:center;color:var(--fg)}
+.themebtn svg{width:22px;height:22px}
 *{box-sizing:border-box}
 html,body{height:100%}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;-webkit-tap-highlight-color:transparent}
@@ -52,18 +72,35 @@ button{cursor:pointer}
 
 /* client tiles */
 .tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.tile{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:118px;padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--panel);text-align:left;transition:transform .08s,background .2s}
+.tile{position:relative;overflow:hidden;width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:150px;padding:16px;border-radius:18px;border:1px solid var(--line);background:var(--panel);text-align:left;transition:transform .08s,background .25s,border-color .25s}
 .tile:active{transform:scale(.97)}
-.tile.bump{background:var(--panel-2)}
-.tile .name{font-weight:600;font-size:17px;line-height:1.2;overflow-wrap:anywhere;padding-right:40px}
-.tile .count{font-family:var(--display);font-weight:700;font-size:46px;line-height:1;margin-top:auto;font-variant-numeric:tabular-nums}
+.tile.bump{background:var(--accent-soft);border-color:var(--accent)}
+.tile .name{font-weight:600;font-size:18px;line-height:1.2;overflow-wrap:anywhere;padding-right:40px}
+.tile .count{font-family:var(--display);font-weight:700;font-size:60px;line-height:.95;margin-top:auto;font-variant-numeric:tabular-nums;color:var(--accent)}
 .tile.zero .count{color:var(--muted)}
-.tile .sub{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
-.tile .plus{position:absolute;right:12px;bottom:12px;width:34px;height:34px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700;font-size:20px}
+.tile .sub{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tile .plus{position:absolute;right:12px;bottom:12px;width:48px;height:48px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700;font-size:28px;line-height:1}
+.tile .fly{position:absolute;right:20px;bottom:60px;font-family:var(--display);font-weight:700;font-size:28px;color:var(--accent);pointer-events:none;animation:fly .7s ease-out forwards}
+.tile .count.pop{animation:pop .3s ease-out}
+@keyframes fly{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-46px)}}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
 .minus{position:absolute;top:8px;right:8px;width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--muted);font-size:20px;line-height:1;display:grid;place-items:center}
-.tile-wrap{position:relative}
+.tile-wrap{position:relative;display:flex}
 .addtile{min-height:118px;border-radius:14px;border:1px dashed var(--line);background:none;color:var(--muted);font-weight:600}
 
+.cnote,.dnote{font-size:13px;line-height:1.3;color:var(--muted);padding-right:40px;overflow-wrap:anywhere}
+.dnote{color:var(--accent);font-weight:500}
+.clip1,.clip2{display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}
+.clip1{-webkit-line-clamp:1}.clip2{-webkit-line-clamp:2}
+.tile .count{margin-top:auto;padding-top:6px}
+.minus.notebtn{top:52px}
+.minus.notebtn.on{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
+.note-in{min-height:0;font-family:var(--body);font-size:14px}
+.crow{border-top:1px solid var(--line)}.crow:first-child{border-top:0}
+.scrim{position:fixed;inset:0;background:rgba(3,10,20,.55);z-index:6}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:7;max-width:560px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-bottom:0;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px;box-shadow:0 -10px 40px rgba(0,0,0,.35)}
+.sheet-h{display:flex;flex-direction:column;gap:2px;font-size:18px}
+.sheet textarea{font-family:var(--body);font-size:16px;min-height:90px}
 .searchwrap{position:relative;display:flex;flex-direction:column;gap:6px}
 .searchwrap input{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:17px;color:var(--fg)}
 .searchwrap input:focus{border-color:var(--accent);outline:none}
@@ -104,10 +141,12 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--mu
 .price-in{width:88px!important;text-align:right}
 
 /* bottom tabs */
-.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);z-index:3}
-.tabs .in{display:flex;width:100%;max-width:560px}
-.tabs button{flex:1;min-width:0;background:none;border:0;padding:12px 2px 14px;font-family:var(--display);font-weight:600;font-size:14px;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);border-top:2px solid transparent}
-.tabs button[aria-selected="true"]{color:var(--fg);border-top-color:var(--accent)}
+.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--bar);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);z-index:3}
+.tabs .in{display:flex;width:100%;max-width:560px;padding-inline:4px}
+.tabs button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;padding:8px 2px 10px;font-size:11px;font-weight:600;letter-spacing:.02em;color:var(--muted)}
+.tabs button svg{width:26px;height:26px;padding:3px 12px;box-sizing:content-box;border-radius:999px;transition:background .2s}
+.tabs button[aria-selected="true"]{color:var(--fg)}
+.tabs button[aria-selected="true"] svg{background:var(--accent-soft);color:var(--accent)}
 
 /* calendar */
 .calhead{display:flex;align-items:center;gap:8px}
@@ -127,25 +166,35 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--mu
 .switch input{width:22px;height:22px;accent-color:var(--accent)}
 a.btn{text-decoration:none;display:inline-block}
 .pill{display:inline-block;border-radius:999px;padding:3px 10px;font-size:13px;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
-.pill.due{background:color-mix(in srgb,var(--danger) 18%,var(--panel));color:var(--danger)}
+.pill.due{background:color-mix(in srgb,var(--warn) 18%,var(--panel));color:var(--warn)}
 .pill.ok{background:color-mix(in srgb,var(--ok) 16%,var(--panel));color:var(--ok)}
 .pill.cred{background:var(--panel-2);color:var(--muted)}
 .paybox{display:flex;flex-direction:column;gap:10px;padding:0 14px 14px;border-top:1px dashed var(--line);padding-top:12px}
 
 .toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:600;font-size:14px;z-index:5;max-width:calc(100% - 32px)}
-@media (prefers-reduced-motion:reduce){.tile{transition:none}.tile:active{transform:none}}
+@media (prefers-reduced-motion:reduce){.tile{transition:none}.tile:active{transform:none}.tile .fly,.tile .count.pop{animation:none}.tile .fly{display:none}}
 </style>
 </head>
 <body>
 
 
+<header class="top">
+  <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
+    <rect width="64" height="64" rx="16" fill="#0f2a46"/>
+    <path d="M9 22 Q32 8 55 22 L55 28 Q32 18 9 28 Z" fill="#2cc0e8"/>
+    <path d="M9 28 L29 44 M55 28 L35 44 M18 24 L29 44 M46 24 L35 44" stroke="#eaf2fa" stroke-width="1.4" stroke-opacity=".75" fill="none"/>
+    <circle cx="32" cy="42" r="3.4" fill="#eaf2fa"/><path d="M28.5 46 h7 l-1 9 h-5 z" fill="#eaf2fa"/>
+  </svg>
+  <span class="brand">Packing</span>
+  <button class="themebtn" id="themeBtn" aria-label="Cambia aspetto chiaro o scuro"></button>
+</header>
 <div class="app" id="app"></div>
 <nav class="tabs" role="tablist"><div class="in">
-  <button role="tab" id="t-conta" data-tab="conta">Conta</button>
-  <button role="tab" id="t-riep" data-tab="riep">Riepilogo</button>
-  <button role="tab" id="t-pag" data-tab="pag">Pagamenti</button>
-  <button role="tab" id="t-cal" data-tab="cal">Calendario</button>
-  <button role="tab" id="t-cli" data-tab="cli">Clienti</button>
+  <button role="tab" id="t-conta" data-tab="conta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Conta</button>
+  <button role="tab" id="t-riep" data-tab="riep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20h16M7 16v-4M12 16V7M17 16v-7"/></svg>Riepilogo</button>
+  <button role="tab" id="t-pag" data-tab="pag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 6.5A7 7 0 1 0 17 17.5M5 10h9M5 14h9"/></svg>Pagamenti</button>
+  <button role="tab" id="t-cli" data-tab="cli"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.8c2 .6 3.2 2.4 3.5 5.2"/></svg>Clienti</button>
+  <button role="tab" id="t-cal" data-tab="cal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendario</button>
 </div></nav>
 <div class="toast" id="toast" hidden></div>
 
@@ -166,14 +215,15 @@ function load(){try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 
 function sample(){
-  const c=[{id:uid(),name:'Marco (esempio)',price:6},{id:uid(),name:'Scuola Skydive (esempio)',price:6},{id:uid(),name:'Giulia (esempio)',price:8}];
+  const c=[{id:uid(),name:'Marco (esempio)',price:6,note:'Sabre 2 170 · vuole il pro pack'},{id:uid(),name:'Scuola Skydive (esempio)',price:6},{id:uid(),name:'Giulia (esempio)',price:8}];
   const d=today(),e=[];const add=(cl,n)=>{for(let i=0;i<n;i++)e.push({id:uid(),clientId:cl.id,day:d,ts:Date.now()-i*6e5,price:cl.price})};
   add(c[0],4);add(c[1],7);add(c[2],1);
-  return {clients:c,entries:e,payments:[{id:uid(),clientId:c[0].id,day:d,ts:Date.now(),amount:12,method:'Contanti'}],sample:true};
+  return {clients:c,entries:e,dayNotes:{[d]:{[c[1].id]:'2 tandem consegnati alle 15'}},payments:[{id:uid(),clientId:c[0].id,day:d,ts:Date.now(),amount:12,method:'Contanti'}],sample:true};
 }
 let S=load()||sample();
 S.planned=S.planned||{};
 S.payments=S.payments||[];
+S.dayNotes=S.dayNotes||{};
 if(!S.dayClients){S.dayClients={};S.entries.forEach(e=>{const l=S.dayClients[e.day]||(S.dayClients[e.day]=[]);if(!l.includes(e.clientId))l.push(e.clientId)})}
 const METHODS=['Contanti','Bonifico','PayPal','Satispay','Altro'];
 let view={tab:'conta',day:today(),range:'day',editing:null,adding:false,confirm:null,importOpen:false,calMonth:today().slice(0,7),calSel:today()};
@@ -207,6 +257,39 @@ function dayBar(){
   ${!isToday?`<div class="banner">Stai guardando un giorno passato.<button data-act="today">Torna a oggi</button></div>`:''}`;
 }
 
+const SKIN_ICONS={
+  auto:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17a8.5 8.5 0 0 0 0-17z" fill="currentColor"/></svg>',
+  light:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>',
+  dark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>'};
+function applySkin(){
+  const m=S.theme||'auto',root=document.documentElement;
+  if(m==='auto')delete root.dataset.skin;else root.dataset.skin=m;
+  const b=document.getElementById('themeBtn');if(b)b.innerHTML=SKIN_ICONS[m];
+  const meta=document.querySelector('meta[name="theme-color"]');
+  if(meta){const bg=getComputedStyle(root).getPropertyValue('--bg').trim();if(bg)meta.setAttribute('content',bg)}
+}
+try{matchMedia('(prefers-color-scheme: light)').addEventListener('change',applySkin)}catch(e){}
+function backupDue(){return !S.sample&&S.entries.length>0&&(!S.lastBackup||Date.now()-S.lastBackup>7*864e5)}
+function backupJSON(){return JSON.stringify({app:'Packing',saved:new Date().toISOString(),clients:S.clients,entries:S.entries,planned:S.planned,payments:S.payments,dayClients:S.dayClients,dayNotes:S.dayNotes},null,1)}
+function backupName(){return 'packing-backup-'+today()+'.json'}
+function downloadBackup(){
+  try{const url=URL.createObjectURL(new Blob([backupJSON()],{type:'application/json'}));const l=document.createElement('a');l.href=url;l.download=backupName();document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);
+    S.lastBackup=Date.now();save();render();toast('Backup salvato nei Download')}catch(e){toast('Salvataggio non disponibile qui')}
+}
+async function shareBackup(){
+  let f;try{f=new File([backupJSON()],backupName(),{type:'application/json'})}catch(e){}
+  if(f&&navigator.canShare&&navigator.canShare({files:[f]})){
+    try{await navigator.share({files:[f],title:'Backup Packing',text:'Backup dei dati di Packing del '+fmtDay(today())});S.lastBackup=Date.now();save();render();toast('Backup inviato')}
+    catch(e){if(e&&e.name!=='AbortError')downloadBackup()}
+  }else downloadBackup();
+}
+function applyImport(d){
+  if(!d||!Array.isArray(d.clients)||!Array.isArray(d.entries))throw new Error('bad');
+  S={clients:d.clients,entries:d.entries,planned:d.planned||{},payments:d.payments||[],dayClients:d.dayClients||{},dayNotes:d.dayNotes||{},lastBackup:Date.now()};
+  save();view.importOpen=false;render();toast('Backup ripristinato');
+}
+function dayNote(d,cid){return ((S.dayNotes||{})[d]||{})[cid]||''}
+function setDayNote(d,cid,txt){const m=S.dayNotes[d]||(S.dayNotes[d]={});if(txt)m[cid]=txt;else{delete m[cid];if(!Object.keys(m).length)delete S.dayNotes[d]}}
 function dayIds(d){
   const ids=[...(S.dayClients[d]||[])];
   entriesOn(d).forEach(e=>{if(!ids.includes(e.clientId))ids.push(e.clientId)});
@@ -214,8 +297,8 @@ function dayIds(d){
 }
 function searchResults(raw){
   const q=raw.trim().toLowerCase(),active=new Set(dayIds(view.day));
-  const list=S.clients.filter(c=>!active.has(c.id)&&(!q||c.name.toLowerCase().includes(q))).sort((a,b)=>a.name.localeCompare(b.name,'it'));
-  let html=list.slice(0,8).map(c=>`<button class="res" data-act="dayAdd" data-id="${c.id}"><span class="grow">${esc(c.name)}</span><span class="muted small">${eur(c.price)}</span></button>`).join('');
+  const list=S.clients.filter(c=>!active.has(c.id)&&(!q||(c.name+' '+(c.note||'')).toLowerCase().includes(q))).sort((a,b)=>a.name.localeCompare(b.name,'it'));
+  let html=list.slice(0,8).map(c=>`<button class="res" data-act="dayAdd" data-id="${c.id}"><span class="grow">${esc(c.name)}${c.note?`<br><span class="muted small clip1">${esc(c.note.split('\n')[0])}</span>`:''}</span><span class="muted small">${eur(c.price)}</span></button>`).join('');
   if(q&&!S.clients.some(c=>c.name.toLowerCase()===q))html+=`<button class="res new" data-act="createFromSearch">+ Nuovo cliente «${esc(raw.trim())}» a ${eur(DEFAULT_PRICE)}</button>`;
   if(!html)html=`<div class="muted small" style="padding:12px 14px">${S.clients.length?'Tutti i clienti sono già nella giornata.':'Scrivi un nome per creare il primo cliente.'}</div>`;
   return html;
@@ -223,19 +306,31 @@ function searchResults(raw){
 function renderConta(){
   const day=entriesOn(view.day);
   const tiles=dayIds(view.day).map(clientById).map(c=>{
-    const mine=day.filter(e=>e.clientId===c.id),n=mine.length;
+    const mine=day.filter(e=>e.clientId===c.id),n=mine.length,dn=dayNote(view.day,c.id);
     return `<div class="tile-wrap"><button class="tile ${n?'':'zero'}" data-act="plus" data-id="${c.id}" id="tile-${c.id}" aria-label="Aggiungi un ripiegamento per ${esc(c.name)}">
-      <span class="name">${esc(c.name)}</span><span class="count">${n}</span><span class="sub">${eur(mine.reduce((s,e)=>s+e.price,0))}</span><span class="plus" aria-hidden="true">+</span>
+      <span class="name">${esc(c.name)}</span>
+      ${c.note?`<span class="cnote clip2">${esc(c.note)}</span>`:''}
+      ${dn?`<span class="dnote clip2">${esc(dn)}</span>`:''}
+      <span class="count">${n}</span><span class="sub">${eur(mine.reduce((s,e)=>s+e.price,0))}</span><span class="plus" aria-hidden="true">+</span>
     </button>${n?`<button class="minus" data-act="minus" data-id="${c.id}" aria-label="Togli l'ultimo ripiegamento di ${esc(c.name)}">−</button>`
-      :`<button class="minus" data-act="dayRemove" data-id="${c.id}" aria-label="Togli ${esc(c.name)} dalla giornata">×</button>`}</div>`}).join('');
+      :`<button class="minus" data-act="dayRemove" data-id="${c.id}" aria-label="Togli ${esc(c.name)} dalla giornata">×</button>`}
+    <button class="minus notebtn ${dn?'on':''}" data-act="noteOpen" data-id="${c.id}" aria-label="Nota della giornata per ${esc(c.name)}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></button></div>`}).join('');
+  const nc=view.noteFor&&clientById(view.noteFor);
+  const sheet=nc?`<div class="scrim" data-act="noteClose"></div><div class="sheet" role="dialog" aria-label="Nota della giornata">
+    <div class="sheet-h"><b>${esc(nc.name)}</b><span class="muted small">${fmtDay(view.day)}</span></div>
+    ${nc.note?`<div class="muted small" style="white-space:pre-wrap">Nota fissa: ${esc(nc.note)}</div>`:''}
+    <label class="f">Nota della giornata<textarea id="dayNoteBox" rows="3" placeholder="Es. consegnata alle 15, manca il pull-up cord…">${esc(dayNote(view.day,nc.id))}</textarea></label>
+    <div class="actions"><button class="btn primary" data-act="noteSave">Salva</button><button class="btn ghost" data-act="noteClose">Annulla</button>${dayNote(view.day,nc.id)?`<button class="btn ghost" data-act="noteClear" style="margin-left:auto;color:var(--danger)">Cancella nota</button>`:''}</div>
+  </div>`:'';
   return `${dayBar()}
   ${S.sample?`<div class="banner">Questi sono dati di esempio.<button data-act="clearSample">Cancella e inizia</button></div>`:''}
+  ${backupDue()?`<div class="banner">${S.lastBackup?'Ultimo backup '+Math.floor((Date.now()-S.lastBackup)/864e5)+' giorni fa.':'Non hai ancora fatto un backup dei dati.'}<button data-act="shareBackup">Invia backup</button></div>`:''}
   <div class="searchwrap">
     <input type="search" id="search" placeholder="Cerca un cliente da aggiungere…" autocomplete="off" aria-label="Cerca cliente">
     <div class="results card" id="results" hidden></div>
   </div>
   ${tiles?`<div class="tiles">${tiles}</div>`
-   :`<div class="empty">Nessun cliente in questa giornata.<br>Cerca qui sopra a chi stai piegando e toccalo per aggiungerlo.</div>`}`;
+   :`<div class="empty">Nessun cliente in questa giornata.<br>Cerca qui sopra a chi stai piegando e toccalo per aggiungerlo.</div>`}${sheet}`;
 }
 function openResults(){const r=document.getElementById('results'),s=document.getElementById('search');if(r&&s){r.innerHTML=searchResults(s.value);r.hidden=false}}
 function addForm(){
@@ -246,6 +341,34 @@ function addForm(){
   </form></div>`;
 }
 
+function monthChart(){
+  if(!S.entries.length)return '';
+  const now=new Date(),months=[];
+  const first=S.entries.reduce((m,e)=>e.day<m?e.day:m,today()).slice(0,7);
+  for(let i=11;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);const k=d.getFullYear()+'-'+pad(d.getMonth()+1);if(k>=first)months.push({k,d})}
+  months.forEach(m=>{const es=S.entries.filter(e=>e.day.startsWith(m.k));m.n=es.length;m.tot=es.reduce((s,e)=>s+e.price,0);
+    m.paid=S.payments.filter(p=>p.day.startsWith(m.k)).reduce((s,p)=>s+p.amount,0)});
+  const max=Math.max(...months.map(m=>m.tot),1);
+  const W=360,H=190,top=22,bottom=24,ch=H-top-bottom,slot=W/Math.max(months.length,6),bw=Math.min(36,slot*0.62);
+  const bars=months.map((m,i)=>{const x=i*slot+(slot-bw)/2,h=Math.max(m.tot/max*ch,m.tot?3:1),y=top+ch-h;
+    const lab=m.d.toLocaleDateString('it-IT',{month:'short'}).replace('.','');
+    return `<g data-act="monthPick" data-k="${m.k}" style="cursor:pointer"><rect x="${i*slot}" y="0" width="${slot}" height="${H}" fill="transparent"></rect>
+      <rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="4" fill="${m.tot?'var(--accent)':'var(--line)'}" ${i===months.length-1?'':'fill-opacity="0.8"'}></rect>
+      ${m.tot?`<text x="${(x+bw/2).toFixed(1)}" y="${(y-6).toFixed(1)}" text-anchor="middle" font-size="11" fill="var(--fg)" style="font-variant-numeric:tabular-nums">${Math.round(m.tot)}</text>`:''}
+      <text x="${(x+bw/2).toFixed(1)}" y="${H-6}" text-anchor="middle" font-size="11" fill="var(--muted)">${lab}</text></g>`}).join('');
+  const cur=months[months.length-1],prev=months[months.length-2];
+  return `<h2>Guadagni per mese</h2>
+  <div class="card" style="padding:14px 12px 6px">
+    <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Guadagni in euro per mese" style="display:block;font-family:var(--body)">
+      <line x1="0" x2="${W}" y1="${top+ch}" y2="${top+ch}" stroke="var(--line)"></line>${bars}</svg>
+  </div>
+  <div class="card">
+    <div class="row"><span class="grow">Questo mese · ${cur.n} ripiegamenti</span><span class="num">${eur(cur.tot)}</span></div>
+    <div class="row"><span class="grow muted">Incassato questo mese</span><span class="num muted">${eur(cur.paid)}</span></div>
+    ${prev?`<div class="row"><span class="grow muted">Mese scorso · ${prev.n} ripiegamenti</span><span class="num muted">${eur(prev.tot)}</span></div>`:''}
+  </div>
+  <p class="muted small" style="margin:0">Importi in euro del lavoro fatto. Tocca un mese per vederne i totali per cliente.</p>`;
+}
 function renderRiep(){
   const list=S.entries.filter(inRange);
   const sum=summarize(list);
@@ -264,7 +387,9 @@ function renderRiep(){
       <button class="minus" style="position:static" data-act="delEntry" data-id="${e.id}" aria-label="Elimina">×</button></div>`}).join('');
     detail=`<h2>Dettaglio giornata</h2><p class="muted small" style="margin:0">Per un caso particolare cambia il prezzo del singolo ripiegamento.</p><div class="card">${items}</div>`;
   }
-  return `${dayBar()}<h2>Totali per cliente</h2>${seg}${table}${detail}`;
+  const dn=view.range==='day'?Object.entries(S.dayNotes[view.day]||{}).filter(([id])=>clientById(id)):[];
+  const notes=dn.length?`<h2>Note della giornata</h2><div class="card">${dn.map(([id,t])=>`<div class="row"><span class="grow"><b>${esc(clientById(id).name)}</b><br><span class="small" style="white-space:pre-wrap">${esc(t)}</span></span></div>`).join('')}</div>`:'';
+  return `${dayBar()}<h2>Totali per cliente</h2>${seg}${table}${notes}${detail}${monthChart()}`;
 }
 
 function renderCli(){
@@ -273,17 +398,20 @@ function renderCli(){
       const n=S.entries.filter(e=>e.clientId===c.id).length;
       return `<div class="row" style="flex-wrap:wrap"><span class="grow">Eliminare <b>${esc(c.name)}</b>${n?` e i suoi ${n} ripiegamenti`:''}?</span>
       <div class="actions"><button class="btn danger" data-act="delCli" data-id="${c.id}">Elimina</button><button class="btn ghost" data-act="cancelDel">Annulla</button></div></div>`}
-    return `<div class="row"><input type="text" id="n-${c.id}" data-name="${c.id}" value="${esc(c.name)}" aria-label="Nome">
+    return `<div class="crow"><div class="row" style="border-top:0"><input type="text" id="n-${c.id}" data-name="${c.id}" value="${esc(c.name)}" aria-label="Nome">
       <input type="number" class="price-in" id="cp-${c.id}" data-cprice="${c.id}" step="0.5" min="0" value="${c.price}" aria-label="Prezzo standard">
-      <button class="minus" style="position:static;flex:none" data-act="askDel" data-id="${c.id}" aria-label="Elimina cliente">×</button></div>`}).join('');
+      <button class="minus" style="position:static;flex:none" data-act="askDel" data-id="${c.id}" aria-label="Elimina cliente">×</button></div>
+      <div style="padding:0 14px 12px"><textarea class="note-in" id="cn-${c.id}" data-cnote="${c.id}" rows="2" placeholder="Note fisse: vela, preferenze, accordi…">${esc(c.note||'')}</textarea></div></div>`}).join('');
   return `<h2>Clienti e prezzo standard</h2>
   <p class="muted small" style="margin:0">Il prezzo vale per i nuovi ripiegamenti. Quelli già segnati non cambiano.</p>
   ${view.adding?addForm():''}
   ${S.clients.length?`<div class="card">${rows}</div>`:`<div class="empty">Nessun cliente.</div>`}
   <div class="actions"><button class="btn primary" data-act="addOpen">+ Nuovo cliente</button></div>
   <h2>Copia di sicurezza</h2>
-  <p class="muted small" style="margin:0">I dati restano su questo telefono. Ogni tanto copia il backup e incollalo in una nota o mandalo a te stesso.</p>
-  <div class="actions"><button class="btn" data-act="exportData">Copia backup</button><button class="btn" data-act="importOpen">Ripristina backup</button></div>
+  <p class="muted small" style="margin:0">I dati restano solo su questo telefono. Manda il backup a te stesso via email o salvalo su Drive: se cambi o perdi il telefono, lo ripristini da qui (il ripristino sostituisce i dati attuali).<br>${S.lastBackup?'Ultimo backup: '+fmtDay(dayKey(new Date(S.lastBackup))):'Nessun backup fatto finora.'}</p>
+  <div class="actions"><button class="btn primary" data-act="shareBackup">Invia backup</button><button class="btn" data-act="saveBackup">Salva file</button></div>
+  <div class="actions"><label class="btn" for="importFile" style="cursor:pointer">Ripristina da file</label><input type="file" id="importFile" accept=".json,application/json,text/plain" hidden>
+  <button class="btn ghost" data-act="exportData">Copia come testo</button><button class="btn ghost" data-act="importOpen">Incolla testo</button></div>
   ${view.importOpen?`<div class="card"><div class="form"><label class="f">Incolla qui il backup<textarea id="importBox"></textarea></label>
   <div class="actions"><button class="btn primary" data-act="importDo">Ripristina</button><button class="btn ghost" data-act="importClose">Annulla</button></div>
   <span class="muted small">Il ripristino sostituisce tutti i dati attuali.</span></div></div>`:''}`;
@@ -379,6 +507,8 @@ function summaryText(){
 }
 
 document.addEventListener('click',ev=>{
+  if(ev.target.closest('#themeBtn')){const order=['auto','light','dark'];S.theme=order[(order.indexOf(S.theme||'auto')+1)%3];save();applySkin();
+    toast({auto:'Aspetto automatico, come il telefono',light:'Aspetto chiaro, per il sole',dark:'Aspetto scuro'}[S.theme]);return}
   const tab=ev.target.closest('.tabs button');if(tab){view.tab=tab.dataset.tab;view.adding=false;view.confirm=null;render();return}
   const b=ev.target.closest('[data-act]');if(!b)return;
   const a=b.dataset.act,id=b.dataset.id;
@@ -388,11 +518,13 @@ document.addEventListener('click',ev=>{
     case 'today':view.day=today();render();break;
     case 'plus':{const c=clientById(id);const now=new Date();const ts=view.day===today()?now.getTime():parseDay(view.day).setHours(12,0,0,0);
       S.entries.push({id:uid(),clientId:id,day:view.day,ts,price:c.price});save();render();
-      const t=document.getElementById('tile-'+id);if(t){t.classList.add('bump');setTimeout(()=>t.classList.remove('bump'),180)}
+      const t=document.getElementById('tile-'+id);if(t){t.classList.add('bump');setTimeout(()=>t.classList.remove('bump'),260);
+        const cn=t.querySelector('.count');cn&&cn.classList.add('pop');
+        const f=document.createElement('span');f.className='fly';f.textContent='+1';t.appendChild(f);setTimeout(()=>f.remove(),750)}
       try{navigator.vibrate&&navigator.vibrate(15)}catch(e){}break}
     case 'minus':{const l=S.entries.filter(e=>e.clientId===id&&e.day===view.day).sort((a,b)=>b.ts-a.ts)[0];
       if(l){S.entries=S.entries.filter(e=>e!==l);save();render();toast('Tolto 1 ripiegamento')}break}
-    case 'clearSample':S={clients:[],entries:[],planned:{},payments:[],dayClients:{}};save();view.adding=true;render();break;
+    case 'clearSample':S={clients:[],entries:[],planned:{},payments:[],dayClients:{},dayNotes:{}};save();view.adding=true;render();break;
     case 'addOpen':view.adding=true;render();break;
     case 'addClose':view.adding=false;render();break;
     case 'range':view.range=b.dataset.r;render();break;
@@ -402,10 +534,17 @@ document.addEventListener('click',ev=>{
     case 'cancelDel':view.confirm=null;render();break;
     case 'delCli':S.clients=S.clients.filter(c=>c.id!==id);S.entries=S.entries.filter(e=>e.clientId!==id);S.payments=S.payments.filter(p=>p.clientId!==id);view.confirm=null;save();render();break;
     case 'calPrev':case 'calNext':{const[y,m]=view.calMonth.split('-').map(Number);const d=new Date(y,m-1+(a==='calNext'?1:-1),1);view.calMonth=d.getFullYear()+'-'+pad(d.getMonth()+1);render();break}
+    case 'monthPick':{const[y,m]=b.dataset.k.split('-').map(Number);const last=dayKey(new Date(y,m,0));view.day=last>today()?today():last;view.range='month';render();window.scrollTo({top:0,behavior:'smooth'});break}
+    case 'noteOpen':view.noteFor=id;render();{const t=document.getElementById('dayNoteBox');t&&t.focus()}break;
+    case 'noteClose':view.noteFor=null;render();break;
+    case 'noteSave':setDayNote(view.day,view.noteFor,document.getElementById('dayNoteBox').value.trim());view.noteFor=null;save();render();toast('Nota salvata');break;
+    case 'noteClear':setDayNote(view.day,view.noteFor,'');view.noteFor=null;save();render();break;
+    case 'shareBackup':shareBackup();break;
+    case 'saveBackup':downloadBackup();break;
     case 'dayAdd':{const l=S.dayClients[view.day]||(S.dayClients[view.day]=[]);if(!l.includes(id))l.push(id);save();render();break}
     case 'dayRemove':{S.dayClients[view.day]=(S.dayClients[view.day]||[]).filter(x=>x!==id);save();render();break}
     case 'createFromSearch':{const name=document.getElementById('search').value.trim();if(!name)break;
-      if(S.sample)S={clients:[],entries:[],planned:S.planned,payments:[],dayClients:{}};
+      if(S.sample)S={clients:[],entries:[],planned:S.planned,payments:[],dayClients:{},dayNotes:{}};
       const c={id:uid(),name,price:DEFAULT_PRICE};S.clients.push(c);(S.dayClients[view.day]||(S.dayClients[view.day]=[])).push(c.id);save();render();toast(name+' aggiunto');break}
     case 'payOpen':view.payFor=id;view.payMethod=view.payMethod||'Contanti';render();const pa=document.getElementById('payAmount');pa&&pa.focus();break;
     case 'payClose':view.payFor=null;render();break;
@@ -417,11 +556,11 @@ document.addEventListener('click',ev=>{
     case 'calGo':view.day=view.calSel;view.tab='conta';render();break;
     case 'icsAll':{const keys=Object.keys(S.planned).filter(x=>x>=today()).sort();
       try{const url=URL.createObjectURL(new Blob([icsText(keys)],{type:'text/calendar'}));const l=document.createElement('a');l.href=url;l.download='packing-giorni.ics';document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);toast('File calendario creato')}catch(e){toast('Esportazione non disponibile qui')}break}
-    case 'exportData':copy(JSON.stringify({clients:S.clients,entries:S.entries,planned:S.planned,payments:S.payments,dayClients:S.dayClients}),'Backup copiato');break;
+    case 'exportData':copy(JSON.stringify({clients:S.clients,entries:S.entries,planned:S.planned,payments:S.payments,dayClients:S.dayClients,dayNotes:S.dayNotes}),'Backup copiato');break;
     case 'importOpen':view.importOpen=true;render();break;
     case 'importClose':view.importOpen=false;render();break;
     case 'importDo':{try{const d=JSON.parse(document.getElementById('importBox').value);if(!Array.isArray(d.clients)||!Array.isArray(d.entries))throw 0;
-      S={clients:d.clients,entries:d.entries,planned:d.planned||{},payments:d.payments||[],dayClients:d.dayClients||{}};save();view.importOpen=false;render();toast('Backup ripristinato')}catch(e){toast('Testo non valido: incolla il backup completo')}break}
+      S={clients:d.clients,entries:d.entries,planned:d.planned||{},payments:d.payments||[],dayClients:d.dayClients||{},dayNotes:d.dayNotes||{}};save();view.importOpen=false;render();toast('Backup ripristinato')}catch(e){toast('Testo non valido: incolla il backup completo')}break}
   }
 });
 document.addEventListener('focusin',ev=>{if(ev.target.id==='search')openResults()});
@@ -432,17 +571,20 @@ document.addEventListener('submit',ev=>{
   if(ev.target.id!=='addForm')return;ev.preventDefault();
   const name=document.getElementById('newName').value.trim();if(!name)return;
   const p=parseFloat(document.getElementById('newPrice').value);
-  if(S.sample){S={clients:[],entries:[],planned:{},payments:[],dayClients:{}}}
+  if(S.sample){S={clients:[],entries:[],planned:{},payments:[],dayClients:{},dayNotes:{}}}
   S.clients.push({id:uid(),name,price:isNaN(p)?DEFAULT_PRICE:p});save();view.adding=false;render();toast(name+' aggiunto');
 });
 document.addEventListener('change',ev=>{
   const t=ev.target,v=parseFloat(t.value);
   if(t.dataset.price){const e=S.entries.find(x=>x.id===t.dataset.price);if(e&&!isNaN(v)){e.price=v;save();render()}}
   if(t.dataset.cprice){const c=clientById(t.dataset.cprice);if(c&&!isNaN(v)){c.price=v;save();toast('Prezzo aggiornato')}}
+  if(t.id==='importFile'&&t.files&&t.files[0]){const r=new FileReader();r.onload=()=>{try{applyImport(JSON.parse(r.result))}catch(e){toast('File non valido: scegli un backup di Packing')}};r.readAsText(t.files[0]);return}
   if(t.id==='planToggle'){if(t.checked)S.planned[view.calSel]=S.planned[view.calSel]||'';else delete S.planned[view.calSel];save();render();return}
   if(t.id==='planNote'){S.planned[view.calSel]=t.value.trim();save();render();return}
+  if(t.dataset.cnote){const c=clientById(t.dataset.cnote);if(c){c.note=t.value.trim();save();toast('Nota salvata')}return}
   if(t.dataset.name){const c=clientById(t.dataset.name);const n=t.value.trim();if(c&&n){c.name=n;save()}}
 });
+applySkin();
 render();
 })();
 </script>
