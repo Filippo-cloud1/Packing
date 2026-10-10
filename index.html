@@ -64,6 +64,14 @@ button{cursor:pointer}
 .tile-wrap{position:relative}
 .addtile{min-height:118px;border-radius:14px;border:1px dashed var(--line);background:none;color:var(--muted);font-weight:600}
 
+.searchwrap{position:relative;display:flex;flex-direction:column;gap:6px}
+.searchwrap input{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:17px;color:var(--fg)}
+.searchwrap input:focus{border-color:var(--accent);outline:none}
+.results{display:flex;flex-direction:column}
+.res{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:14px;font-size:16px}
+.res:first-child{border-top:0}
+.res:active{background:var(--panel-2)}
+.res.new{color:var(--accent);font-weight:600}
 .empty{color:var(--muted);text-align:center;padding:24px 8px;border:1px dashed var(--line);border-radius:14px}
 
 /* sections */
@@ -166,6 +174,7 @@ function sample(){
 let S=load()||sample();
 S.planned=S.planned||{};
 S.payments=S.payments||[];
+if(!S.dayClients){S.dayClients={};S.entries.forEach(e=>{const l=S.dayClients[e.day]||(S.dayClients[e.day]=[]);if(!l.includes(e.clientId))l.push(e.clientId)})}
 const METHODS=['Contanti','Bonifico','PayPal','Satispay','Altro'];
 let view={tab:'conta',day:today(),range:'day',editing:null,adding:false,confirm:null,importOpen:false,calMonth:today().slice(0,7),calSel:today()};
 
@@ -198,19 +207,37 @@ function dayBar(){
   ${!isToday?`<div class="banner">Stai guardando un giorno passato.<button data-act="today">Torna a oggi</button></div>`:''}`;
 }
 
+function dayIds(d){
+  const ids=[...(S.dayClients[d]||[])];
+  entriesOn(d).forEach(e=>{if(!ids.includes(e.clientId))ids.push(e.clientId)});
+  return ids.filter(id=>clientById(id));
+}
+function searchResults(raw){
+  const q=raw.trim().toLowerCase(),active=new Set(dayIds(view.day));
+  const list=S.clients.filter(c=>!active.has(c.id)&&(!q||c.name.toLowerCase().includes(q))).sort((a,b)=>a.name.localeCompare(b.name,'it'));
+  let html=list.slice(0,8).map(c=>`<button class="res" data-act="dayAdd" data-id="${c.id}"><span class="grow">${esc(c.name)}</span><span class="muted small">${eur(c.price)}</span></button>`).join('');
+  if(q&&!S.clients.some(c=>c.name.toLowerCase()===q))html+=`<button class="res new" data-act="createFromSearch">+ Nuovo cliente «${esc(raw.trim())}» a ${eur(DEFAULT_PRICE)}</button>`;
+  if(!html)html=`<div class="muted small" style="padding:12px 14px">${S.clients.length?'Tutti i clienti sono già nella giornata.':'Scrivi un nome per creare il primo cliente.'}</div>`;
+  return html;
+}
 function renderConta(){
   const day=entriesOn(view.day);
-  const tiles=S.clients.map(c=>{
-    const n=day.filter(e=>e.clientId===c.id).length;
+  const tiles=dayIds(view.day).map(clientById).map(c=>{
+    const mine=day.filter(e=>e.clientId===c.id),n=mine.length;
     return `<div class="tile-wrap"><button class="tile ${n?'':'zero'}" data-act="plus" data-id="${c.id}" id="tile-${c.id}" aria-label="Aggiungi un ripiegamento per ${esc(c.name)}">
-      <span class="name">${esc(c.name)}</span><span class="count">${n}</span><span class="sub">${eur(n?day.filter(e=>e.clientId===c.id).reduce((s,e)=>s+e.price,0):0)}</span><span class="plus" aria-hidden="true">+</span>
-    </button>${n?`<button class="minus" data-act="minus" data-id="${c.id}" aria-label="Togli l'ultimo ripiegamento di ${esc(c.name)}">−</button>`:''}</div>`}).join('');
+      <span class="name">${esc(c.name)}</span><span class="count">${n}</span><span class="sub">${eur(mine.reduce((s,e)=>s+e.price,0))}</span><span class="plus" aria-hidden="true">+</span>
+    </button>${n?`<button class="minus" data-act="minus" data-id="${c.id}" aria-label="Togli l'ultimo ripiegamento di ${esc(c.name)}">−</button>`
+      :`<button class="minus" data-act="dayRemove" data-id="${c.id}" aria-label="Togli ${esc(c.name)} dalla giornata">×</button>`}</div>`}).join('');
   return `${dayBar()}
   ${S.sample?`<div class="banner">Questi sono dati di esempio.<button data-act="clearSample">Cancella e inizia</button></div>`:''}
-  ${view.adding?addForm():''}
-  ${S.clients.length?`<div class="tiles">${tiles}<button class="addtile" data-act="addOpen">+ Nuovo cliente</button></div>`
-   :`<div class="empty">Nessun cliente ancora.<br>Aggiungi il primo per iniziare a contare.<div class="actions" style="justify-content:center;margin-top:12px"><button class="btn primary" data-act="addOpen">+ Nuovo cliente</button></div></div>`}`;
+  <div class="searchwrap">
+    <input type="search" id="search" placeholder="Cerca un cliente da aggiungere…" autocomplete="off" aria-label="Cerca cliente">
+    <div class="results card" id="results" hidden></div>
+  </div>
+  ${tiles?`<div class="tiles">${tiles}</div>`
+   :`<div class="empty">Nessun cliente in questa giornata.<br>Cerca qui sopra a chi stai piegando e toccalo per aggiungerlo.</div>`}`;
 }
+function openResults(){const r=document.getElementById('results'),s=document.getElementById('search');if(r&&s){r.innerHTML=searchResults(s.value);r.hidden=false}}
 function addForm(){
   return `<div class="card"><form class="form" id="addForm">
     <div class="two"><label class="f">Nome cliente<input type="text" id="newName" required autocomplete="off"></label>
@@ -309,7 +336,7 @@ function balance(cid){
   return {owed,paid,due:Math.round((owed-paid)*100)/100};
 }
 function renderPag(){
-  const list=S.clients.map(c=>({c,...balance(c.id)})).sort((a,b)=>b.due-a.due);
+  const list=S.clients.map(c=>({c,...balance(c.id)})).filter(x=>x.due>0).sort((a,b)=>b.due-a.due);
   const totDue=list.reduce((s,x)=>s+Math.max(0,x.due),0);
   const debtors=list.filter(x=>x.due>0).length;
   const rows=list.map(({c,owed,paid,due})=>{
@@ -327,7 +354,7 @@ function renderPag(){
   return `<div class="totals"><div><div class="k">Da incassare</div><div class="v eur">${eur(totDue)}</div></div><div><div class="k">Clienti in debito</div><div class="v">${debtors}</div></div></div>
   <h2>Chi deve pagare</h2>
   <p class="muted small" style="margin:0">Il saldo considera tutti i ripiegamenti segnati meno i pagamenti ricevuti.</p>
-  ${S.clients.length?`<div class="card">${rows}</div>`:`<div class="empty">Aggiungi un cliente per tenere i conti.</div>`}
+  ${list.length?`<div class="card">${rows}</div>`:`<div class="empty">Nessuno ti deve soldi. Tutti i clienti sono in pari.</div>`}
   <h2>Ultimi pagamenti</h2>
   ${hist?`<div class="card">${hist}</div>`:`<div class="empty">Nessun pagamento registrato.</div>`}`;
 }
@@ -365,7 +392,7 @@ document.addEventListener('click',ev=>{
       try{navigator.vibrate&&navigator.vibrate(15)}catch(e){}break}
     case 'minus':{const l=S.entries.filter(e=>e.clientId===id&&e.day===view.day).sort((a,b)=>b.ts-a.ts)[0];
       if(l){S.entries=S.entries.filter(e=>e!==l);save();render();toast('Tolto 1 ripiegamento')}break}
-    case 'clearSample':S={clients:[],entries:[],planned:{},payments:[]};save();view.adding=true;render();break;
+    case 'clearSample':S={clients:[],entries:[],planned:{},payments:[],dayClients:{}};save();view.adding=true;render();break;
     case 'addOpen':view.adding=true;render();break;
     case 'addClose':view.adding=false;render();break;
     case 'range':view.range=b.dataset.r;render();break;
@@ -375,6 +402,11 @@ document.addEventListener('click',ev=>{
     case 'cancelDel':view.confirm=null;render();break;
     case 'delCli':S.clients=S.clients.filter(c=>c.id!==id);S.entries=S.entries.filter(e=>e.clientId!==id);S.payments=S.payments.filter(p=>p.clientId!==id);view.confirm=null;save();render();break;
     case 'calPrev':case 'calNext':{const[y,m]=view.calMonth.split('-').map(Number);const d=new Date(y,m-1+(a==='calNext'?1:-1),1);view.calMonth=d.getFullYear()+'-'+pad(d.getMonth()+1);render();break}
+    case 'dayAdd':{const l=S.dayClients[view.day]||(S.dayClients[view.day]=[]);if(!l.includes(id))l.push(id);save();render();break}
+    case 'dayRemove':{S.dayClients[view.day]=(S.dayClients[view.day]||[]).filter(x=>x!==id);save();render();break}
+    case 'createFromSearch':{const name=document.getElementById('search').value.trim();if(!name)break;
+      if(S.sample)S={clients:[],entries:[],planned:S.planned,payments:[],dayClients:{}};
+      const c={id:uid(),name,price:DEFAULT_PRICE};S.clients.push(c);(S.dayClients[view.day]||(S.dayClients[view.day]=[])).push(c.id);save();render();toast(name+' aggiunto');break}
     case 'payOpen':view.payFor=id;view.payMethod=view.payMethod||'Contanti';render();const pa=document.getElementById('payAmount');pa&&pa.focus();break;
     case 'payClose':view.payFor=null;render();break;
     case 'payMethod':view.payMethod=b.dataset.m;document.querySelectorAll('[data-act="payMethod"]').forEach(x=>x.setAttribute('aria-pressed',x===b));break;
@@ -385,18 +417,22 @@ document.addEventListener('click',ev=>{
     case 'calGo':view.day=view.calSel;view.tab='conta';render();break;
     case 'icsAll':{const keys=Object.keys(S.planned).filter(x=>x>=today()).sort();
       try{const url=URL.createObjectURL(new Blob([icsText(keys)],{type:'text/calendar'}));const l=document.createElement('a');l.href=url;l.download='packing-giorni.ics';document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);toast('File calendario creato')}catch(e){toast('Esportazione non disponibile qui')}break}
-    case 'exportData':copy(JSON.stringify({clients:S.clients,entries:S.entries,planned:S.planned,payments:S.payments}),'Backup copiato');break;
+    case 'exportData':copy(JSON.stringify({clients:S.clients,entries:S.entries,planned:S.planned,payments:S.payments,dayClients:S.dayClients}),'Backup copiato');break;
     case 'importOpen':view.importOpen=true;render();break;
     case 'importClose':view.importOpen=false;render();break;
     case 'importDo':{try{const d=JSON.parse(document.getElementById('importBox').value);if(!Array.isArray(d.clients)||!Array.isArray(d.entries))throw 0;
-      S={clients:d.clients,entries:d.entries,planned:d.planned||{},payments:d.payments||[]};save();view.importOpen=false;render();toast('Backup ripristinato')}catch(e){toast('Testo non valido: incolla il backup completo')}break}
+      S={clients:d.clients,entries:d.entries,planned:d.planned||{},payments:d.payments||[],dayClients:d.dayClients||{}};save();view.importOpen=false;render();toast('Backup ripristinato')}catch(e){toast('Testo non valido: incolla il backup completo')}break}
   }
 });
+document.addEventListener('focusin',ev=>{if(ev.target.id==='search')openResults()});
+document.addEventListener('input',ev=>{if(ev.target.id==='search')openResults()});
+document.addEventListener('pointerdown',ev=>{const r=document.getElementById('results');if(r&&!r.hidden&&!ev.target.closest('.searchwrap'))r.hidden=true});
+document.addEventListener('keydown',ev=>{if(ev.target.id==='search'&&ev.key==='Enter'){const f=document.querySelector('#results .res');f&&f.click()}});
 document.addEventListener('submit',ev=>{
   if(ev.target.id!=='addForm')return;ev.preventDefault();
   const name=document.getElementById('newName').value.trim();if(!name)return;
   const p=parseFloat(document.getElementById('newPrice').value);
-  if(S.sample){S={clients:[],entries:[],planned:{},payments:[]}}
+  if(S.sample){S={clients:[],entries:[],planned:{},payments:[],dayClients:{}}}
   S.clients.push({id:uid(),name,price:isNaN(p)?DEFAULT_PRICE:p});save();view.adding=false;render();toast(name+' aggiunto');
 });
 document.addEventListener('change',ev=>{
