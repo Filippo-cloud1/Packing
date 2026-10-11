@@ -171,7 +171,8 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--mu
 .sw{width:12px;height:12px;border-radius:3px;border:1px solid var(--accent);background:color-mix(in srgb,var(--accent) 22%,var(--panel))}
 .switch{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border-bottom:1px solid var(--line)}
 .switch input{width:22px;height:22px;accent-color:var(--accent)}
-a.btn{text-decoration:none;display:inline-block}
+a.btn{text-decoration:none;display:inline-block;color:var(--accent)}
+.sw-n{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:4px;border:1px solid var(--line);background:var(--panel);font-style:normal;font-size:11px;font-weight:700;color:var(--ok)}
 .pill{display:inline-block;border-radius:999px;padding:3px 10px;font-size:13px;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
 .pill.due{background:color-mix(in srgb,var(--warn) 18%,var(--panel));color:var(--warn)}
 .pill.ok{background:color-mix(in srgb,var(--ok) 16%,var(--panel));color:var(--ok)}
@@ -522,7 +523,8 @@ function renderCal(){
   const monthName=first.toLocaleDateString('it-IT',{month:'long',year:'numeric'});
   return `<div class="calhead"><button class="navbtn" data-act="calPrev" aria-label="Mese precedente">‹</button><div class="m">${monthName}</div><button class="navbtn" data-act="calNext" aria-label="Mese successivo">›</button></div>
   <div class="cal">${cells}</div>
-  <div class="legend"><span><i class="sw"></i>Giorno di lavoro</span><span><b style="color:var(--ok)">12</b> ripiegamenti fatti</span></div>
+  <div class="legend"><span><i class="sw"></i>Giorno di lavoro segnato</span><span><i class="sw-n">n</i>Numero verde = ripiegamenti fatti quel giorno</span></div>
+  <div class="muted small">${(()=>{const n=Object.values(counts).reduce((a,b)=>a+b,0);return n?`In ${monthName}: <b style="color:var(--fg)">${n} ripiegamenti</b> in ${Object.keys(counts).length} giorni`:`In ${monthName} non hai ancora segnato ripiegamenti.`})()}</div>
   <div class="card">
     <label class="switch"><span><b>${fmtDay(k)}</b><br><span class="muted small">${n?n+' ripiegamenti segnati':'Nessun ripiegamento segnato'}</span></span>
       <input type="checkbox" id="planToggle" ${planned?'checked':''} aria-label="Giorno di lavoro"></label>
