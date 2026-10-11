@@ -101,6 +101,13 @@ button{cursor:pointer}
 .sheet{position:fixed;left:0;right:0;bottom:0;z-index:7;max-width:560px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-bottom:0;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px;box-shadow:0 -10px 40px rgba(0,0,0,.35)}
 .sheet-h{display:flex;flex-direction:column;gap:2px;font-size:18px}
 .sheet textarea{font-family:var(--body);font-size:16px;min-height:90px}
+.swatches{display:flex;gap:12px;flex-wrap:wrap}
+.swatch{width:42px;height:42px;border-radius:50%;border:2px solid var(--line)}
+.swatch[aria-pressed="true"]{outline:3px solid var(--fg);outline-offset:3px}
+.themebtn.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.btn.small{padding:6px 10px;font-size:13px}
+#methodForm{gap:10px}#methodForm input{flex:1;min-width:0}
+.card>.switch:last-child{border-bottom:0}
 .searchwrap{position:relative;display:flex;flex-direction:column;gap:6px}
 .searchwrap input{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:17px;color:var(--fg)}
 .searchwrap input:focus{border-color:var(--accent);outline:none}
@@ -186,6 +193,7 @@ a.btn{text-decoration:none;display:inline-block}
     <circle cx="32" cy="42" r="3.4" fill="#eaf2fa"/><path d="M28.5 46 h7 l-1 9 h-5 z" fill="#eaf2fa"/>
   </svg>
   <span class="brand">Packing</span>
+  <button class="themebtn" id="setBtn" aria-label="Impostazioni"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h0a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v0a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
   <button class="themebtn" id="themeBtn" aria-label="Cambia aspetto chiaro o scuro"></button>
 </header>
 <div class="app" id="app"></div>
@@ -225,7 +233,18 @@ S.planned=S.planned||{};
 S.payments=S.payments||[];
 S.dayNotes=S.dayNotes||{};
 if(!S.dayClients){S.dayClients={};S.entries.forEach(e=>{const l=S.dayClients[e.day]||(S.dayClients[e.day]=[]);if(!l.includes(e.clientId))l.push(e.clientId)})}
-const METHODS=['Contanti','Bonifico','PayPal','Satispay','Altro'];
+const METHODS=['Contanti','Bonifico','Conto Bfu','PayPal','Satispay','Altro'];
+const SET_DEFAULTS={name:'',price:DEFAULT_PRICE,methods:METHODS,defMethod:'Contanti',accent:'azzurro',vibrate:true,guard:true,backupDays:7};
+S.set=Object.assign({},SET_DEFAULTS,S.set||{});
+const cfg=()=>S.set;
+const ACCENTS={
+  azzurro:{label:'Azzurro',d:'#2cc0e8',l:'#0a8ec0',inkD:'#03202c',inkL:'#ffffff'},
+  verde:{label:'Verde',d:'#4fd49a',l:'#16865a',inkD:'#04241a',inkL:'#ffffff'},
+  arancione:{label:'Arancione',d:'#ff8a4c',l:'#c9581a',inkD:'#2a1003',inkL:'#ffffff'},
+  viola:{label:'Viola',d:'#ac8dff',l:'#6a45d6',inkD:'#1c0f3d',inkL:'#ffffff'},
+  rosa:{label:'Rosa',d:'#ff7ab6',l:'#c2347a',inkD:'#3a0a20',inkL:'#ffffff'},
+  giallo:{label:'Giallo',d:'#ffcf3f',l:'#a87700',inkD:'#2b2000',inkL:'#ffffff'}};
+const APP_VERSION='1.11';
 let view={tab:'conta',day:today(),range:'day',editing:null,adding:false,confirm:null,importOpen:false,calMonth:today().slice(0,7),calSel:today()};
 
 const clientById=id=>S.clients.find(c=>c.id===id);
@@ -265,12 +284,19 @@ function applySkin(){
   const m=S.theme||'auto',root=document.documentElement;
   if(m==='auto')delete root.dataset.skin;else root.dataset.skin=m;
   const b=document.getElementById('themeBtn');if(b)b.innerHTML=SKIN_ICONS[m];
+  let light=m==='light';if(m==='auto'){try{light=matchMedia('(prefers-color-scheme: light)').matches}catch(e){}}
+  const a=ACCENTS[cfg().accent]||ACCENTS.azzurro,st=root.style;
+  if(cfg().accent==='azzurro'){['--accent','--accent-ink','--accent-soft'].forEach(k=>st.removeProperty(k))}
+  else{const c=light?a.l:a.d,n=parseInt(c.slice(1),16);
+    st.setProperty('--accent',c);st.setProperty('--accent-ink',light?a.inkL:a.inkD);
+    st.setProperty('--accent-soft',`rgba(${n>>16},${(n>>8)&255},${n&255},${light?.12:.16})`)}
+  const sb=document.getElementById('setBtn');if(sb)sb.classList.toggle('on',view.tab==='set');
   const meta=document.querySelector('meta[name="theme-color"]');
   if(meta){const bg=getComputedStyle(root).getPropertyValue('--bg').trim();if(bg)meta.setAttribute('content',bg)}
 }
 try{matchMedia('(prefers-color-scheme: light)').addEventListener('change',applySkin)}catch(e){}
-function backupDue(){return !S.sample&&S.entries.length>0&&(!S.lastBackup||Date.now()-S.lastBackup>7*864e5)}
-function backupJSON(){return JSON.stringify({app:'Packing',saved:new Date().toISOString(),clients:S.clients,entries:S.entries,planned:S.planned,payments:S.payments,dayClients:S.dayClients,dayNotes:S.dayNotes},null,1)}
+function backupDue(){const d=cfg().backupDays;return d>0&&!S.sample&&S.entries.length>0&&(!S.lastBackup||Date.now()-S.lastBackup>d*864e5)}
+function backupJSON(){return JSON.stringify({app:'Packing',saved:new Date().toISOString(),clients:S.clients,entries:S.entries,planned:S.planned,payments:S.payments,dayClients:S.dayClients,dayNotes:S.dayNotes,set:S.set,theme:S.theme},null,1)}
 function backupName(){return 'packing-backup-'+today()+'.json'}
 function downloadBackup(){
   try{const url=URL.createObjectURL(new Blob([backupJSON()],{type:'application/json'}));const l=document.createElement('a');l.href=url;l.download=backupName();document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);
@@ -285,7 +311,7 @@ async function shareBackup(){
 }
 function applyImport(d){
   if(!d||!Array.isArray(d.clients)||!Array.isArray(d.entries))throw new Error('bad');
-  S={clients:d.clients,entries:d.entries,planned:d.planned||{},payments:d.payments||[],dayClients:d.dayClients||{},dayNotes:d.dayNotes||{},lastBackup:Date.now()};
+  S={clients:d.clients,entries:d.entries,planned:d.planned||{},payments:d.payments||[],dayClients:d.dayClients||{},dayNotes:d.dayNotes||{},set:Object.assign({},SET_DEFAULTS,d.set||S.set),theme:d.theme||S.theme,lastBackup:Date.now()};
   save();view.importOpen=false;render();toast('Backup ripristinato');
 }
 function dayNote(d,cid){return ((S.dayNotes||{})[d]||{})[cid]||''}
@@ -299,7 +325,7 @@ function searchResults(raw){
   const q=raw.trim().toLowerCase(),active=new Set(dayIds(view.day));
   const list=S.clients.filter(c=>!active.has(c.id)&&(!q||(c.name+' '+(c.note||'')).toLowerCase().includes(q))).sort((a,b)=>a.name.localeCompare(b.name,'it'));
   let html=list.slice(0,8).map(c=>`<button class="res" data-act="dayAdd" data-id="${c.id}"><span class="grow">${esc(c.name)}${c.note?`<br><span class="muted small clip1">${esc(c.note.split('\n')[0])}</span>`:''}</span><span class="muted small">${eur(c.price)}</span></button>`).join('');
-  if(q&&!S.clients.some(c=>c.name.toLowerCase()===q))html+=`<button class="res new" data-act="createFromSearch">+ Nuovo cliente «${esc(raw.trim())}» a ${eur(DEFAULT_PRICE)}</button>`;
+  if(q&&!S.clients.some(c=>c.name.toLowerCase()===q))html+=`<button class="res new" data-act="createFromSearch">+ Nuovo cliente «${esc(raw.trim())}» a ${eur(cfg().price)}</button>`;
   if(!html)html=`<div class="muted small" style="padding:12px 14px">${S.clients.length?'Tutti i clienti sono già nella giornata.':'Scrivi un nome per creare il primo cliente.'}</div>`;
   return html;
 }
@@ -336,7 +362,7 @@ function openResults(){const r=document.getElementById('results'),s=document.get
 function addForm(){
   return `<div class="card"><form class="form" id="addForm">
     <div class="two"><label class="f">Nome cliente<input type="text" id="newName" required autocomplete="off"></label>
-    <label class="f">Prezzo €<input type="number" id="newPrice" step="0.5" min="0" value="${DEFAULT_PRICE}"></label></div>
+    <label class="f">Prezzo €<input type="number" id="newPrice" step="0.5" min="0" value="${cfg().price}"></label></div>
     <div class="actions"><button class="btn primary" type="submit">Aggiungi</button><button class="btn ghost" type="button" data-act="addClose">Annulla</button></div>
   </form></div>`;
 }
@@ -407,14 +433,7 @@ function renderCli(){
   ${view.adding?addForm():''}
   ${S.clients.length?`<div class="card">${rows}</div>`:`<div class="empty">Nessun cliente.</div>`}
   <div class="actions"><button class="btn primary" data-act="addOpen">+ Nuovo cliente</button></div>
-  <h2>Copia di sicurezza</h2>
-  <p class="muted small" style="margin:0">I dati restano solo su questo telefono. Manda il backup a te stesso via email o salvalo su Drive: se cambi o perdi il telefono, lo ripristini da qui (il ripristino sostituisce i dati attuali).<br>${S.lastBackup?'Ultimo backup: '+fmtDay(dayKey(new Date(S.lastBackup))):'Nessun backup fatto finora.'}</p>
-  <div class="actions"><button class="btn primary" data-act="shareBackup">Invia backup</button><button class="btn" data-act="saveBackup">Salva file</button></div>
-  <div class="actions"><label class="btn" for="importFile" style="cursor:pointer">Ripristina da file</label><input type="file" id="importFile" accept=".json,application/json,text/plain" hidden>
-  <button class="btn ghost" data-act="exportData">Copia come testo</button><button class="btn ghost" data-act="importOpen">Incolla testo</button></div>
-  ${view.importOpen?`<div class="card"><div class="form"><label class="f">Incolla qui il backup<textarea id="importBox"></textarea></label>
-  <div class="actions"><button class="btn primary" data-act="importDo">Ripristina</button><button class="btn ghost" data-act="importClose">Annulla</button></div>
-  <span class="muted small">Il ripristino sostituisce tutti i dati attuali.</span></div></div>`:''}`;
+  <p class="muted small" style="margin:0">Backup, prezzo per i nuovi clienti e metodi di pagamento sono nelle Impostazioni (ingranaggio in alto).</p>`;
 }
 
 const compact=k=>k.replace(/-/g,'');
@@ -429,6 +448,66 @@ function icsText(keys){
   const ev=keys.map(k=>['BEGIN:VEVENT','UID:packing-'+k+'@packing','DTSTAMP:'+stamp,'DTSTART;VALUE=DATE:'+compact(k),'DTEND;VALUE=DATE:'+compact(nextDay(k)),'SUMMARY:Ripiegamenti'+(S.planned[k]?' - '+S.planned[k].replace(/[,;\n]/g,' '):''),'END:VEVENT'].join('\r\n'));
   return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Packing//IT',...ev,'END:VCALENDAR'].join('\r\n');
 }
+function seg(act,opts,cur){return `<div class="seg">${opts.map(([v,l])=>`<button data-act="${act}" data-v="${v}" aria-pressed="${String(cur)===String(v)}">${l}</button>`).join('')}</div>`}
+function toggleRow(k,title,sub){return `<label class="switch"><span><b>${title}</b><br><span class="muted small">${sub}</span></span><input type="checkbox" id="set-${k}" data-toggle="${k}" ${cfg()[k]?'checked':''}></label>`}
+function renderSet(){
+  const c=cfg();
+  const methods=c.methods.map((m,i)=>`<div class="row"><span class="grow">${esc(m)}${m===c.defMethod?' <span class="pill ok" style="margin-left:6px">predefinito</span>':''}</span>
+    ${m!==c.defMethod?`<button class="btn ghost small" data-act="defMethod" data-i="${i}">Predefinito</button>`:''}
+    <button class="minus" style="position:static;flex:none" data-act="delMethod" data-i="${i}" aria-label="Togli ${esc(m)}" ${c.methods.length<2?'disabled style="position:static;flex:none;opacity:.35"':''}>×</button></div>`).join('');
+  const sw=Object.entries(ACCENTS).map(([k,a])=>`<button class="swatch" data-act="setAccent" data-v="${k}" aria-pressed="${c.accent===k}" aria-label="${a.label}" style="background:${a.d}"></button>`).join('');
+  return `<h2 style="margin-top:0">Impostazioni</h2>
+
+  <h2>Il tuo profilo</h2>
+  <div class="card"><div class="form">
+    <label class="f">Il tuo nome<input type="text" id="set-name" data-set="name" value="${esc(c.name)}" placeholder="Es. Filippo" autocomplete="name"></label>
+    <span class="muted small">Compare nel riepilogo che copi e mandi ai clienti.</span>
+  </div></div>
+
+  <h2>Prezzi</h2>
+  <div class="card"><div class="form">
+    <label class="f">Prezzo standard per i nuovi clienti (€)<input type="number" id="set-price" data-set="price" step="0.5" min="0" value="${c.price}" style="max-width:140px"></label>
+    ${view.confirmPrice?`<div class="banner" style="border-style:solid">Mettere ${eur(c.price)} a tutti i ${S.clients.length} clienti? I ripiegamenti già segnati non cambiano.
+      <span class="actions"><button class="btn primary" data-act="priceAllDo">Conferma</button><button class="btn ghost" data-act="priceAllNo">Annulla</button></span></div>`
+    :`<div class="actions"><button class="btn" data-act="priceAllAsk" ${S.clients.length?'':'disabled'}>Applica a tutti i clienti</button></div>`}
+  </div></div>
+
+  <h2>Metodi di pagamento</h2>
+  <div class="card">${methods}
+    <form class="row" id="methodForm"><input type="text" id="newMethod" placeholder="Nuovo metodo, es. Revolut" autocomplete="off"><button class="btn" type="submit">Aggiungi</button></form>
+  </div>
+
+  <h2>Aspetto</h2>
+  <div class="card"><div class="form">
+    <span class="f">Tema</span>${seg('setTheme',[['auto','Automatico'],['light','Chiaro'],['dark','Scuro']],S.theme||'auto')}
+    <span class="f">Colore principale</span><div class="swatches">${sw}</div>
+  </div></div>
+
+  <h2>Contatore</h2>
+  <div class="card">
+    ${toggleRow('vibrate','Vibrazione al tocco','Una breve vibrazione a ogni +1.')}
+    ${toggleRow('guard','Protezione doppio tocco','Ignora un secondo tocco sullo stesso cliente entro 1,5 secondi.')}
+  </div>
+
+  <h2>Promemoria backup</h2>
+  ${seg('setBackupDays',[[0,'Mai'],[3,'3 giorni'],[7,'7 giorni'],[14,'14 giorni'],[30,'30 giorni']],c.backupDays)}
+  <h2>Copia di sicurezza</h2>
+  <p class="muted small" style="margin:0">I dati restano solo su questo telefono. Manda il backup a te stesso via email o salvalo su Drive: se cambi o perdi il telefono, lo ripristini da qui (il ripristino sostituisce i dati attuali).<br>${S.lastBackup?'Ultimo backup: '+fmtDay(dayKey(new Date(S.lastBackup))):'Nessun backup fatto finora.'}</p>
+  <div class="actions"><button class="btn primary" data-act="shareBackup">Invia backup</button><button class="btn" data-act="saveBackup">Salva file</button></div>
+  <div class="actions"><label class="btn" for="importFile" style="cursor:pointer">Ripristina da file</label><input type="file" id="importFile" accept=".json,application/json,text/plain" hidden>
+  <button class="btn ghost" data-act="exportData">Copia come testo</button><button class="btn ghost" data-act="importOpen">Incolla testo</button></div>
+  ${view.importOpen?`<div class="card"><div class="form"><label class="f">Incolla qui il backup<textarea id="importBox"></textarea></label>
+  <div class="actions"><button class="btn primary" data-act="importDo">Ripristina</button><button class="btn ghost" data-act="importClose">Annulla</button></div>
+  <span class="muted small">Il ripristino sostituisce tutti i dati attuali.</span></div></div>`:''}
+
+  <h2>Dati</h2>
+  ${view.confirmWipe?`<div class="card"><div class="form"><b style="color:var(--danger)">Cancellare tutti i clienti, ripiegamenti, pagamenti e note?</b>
+    <span class="muted small">Non si può annullare. Le impostazioni restano. Fai prima un backup se vuoi conservarli.</span>
+    <div class="actions"><button class="btn danger" data-act="wipeDo">Cancella tutto</button><button class="btn ghost" data-act="wipeNo">Annulla</button></div></div></div>`
+  :`<div class="actions"><button class="btn danger" data-act="wipeAsk">Cancella tutti i dati</button></div>`}
+  <p class="muted small" style="margin:0;text-align:center">Packing · versione ${APP_VERSION}</p>`;
+}
+
 function renderCal(){
   const [y,m]=view.calMonth.split('-').map(Number);
   const first=new Date(y,m-1,1),days=new Date(y,m,0).getDate(),lead=(first.getDay()+6)%7;
@@ -473,7 +552,7 @@ function renderPag(){
     return `<div><div class="row"><span class="grow">${esc(c.name)}<br><span class="muted small">Lavoro ${eur(owed)} · Pagato ${eur(paid)}</span></span>${pill}</div>
     ${open?`<div class="paybox">
       <label class="f">Importo ricevuto €<input type="number" id="payAmount" step="0.5" min="0" value="${due>0?due:''}"></label>
-      <div class="seg">${METHODS.map(m=>`<button data-act="payMethod" data-m="${m}" aria-pressed="${view.payMethod===m}">${m}</button>`).join('')}</div>
+      <div class="seg">${cfg().methods.map(m=>`<button data-act="payMethod" data-m="${m}" aria-pressed="${view.payMethod===m}">${m}</button>`).join('')}</div>
       <div class="actions"><button class="btn primary" data-act="payDo" data-id="${c.id}">Registra pagamento</button><button class="btn ghost" data-act="payClose">Annulla</button></div>
     </div>`:`<div style="padding:0 14px 12px" class="actions"><button class="btn" data-act="payOpen" data-id="${c.id}">+ Pagamento</button></div>`}</div>`}).join('<div style="border-top:1px solid var(--line)"></div>');
   const hist=[...S.payments].sort((a,b)=>b.ts-a.ts).slice(0,30).map(p=>{const c=clientById(p.clientId);
@@ -489,8 +568,9 @@ function renderPag(){
 
 function render(){
   const app=document.getElementById('app');
-  app.innerHTML=view.tab==='conta'?renderConta():view.tab==='riep'?renderRiep():view.tab==='cal'?renderCal():view.tab==='pag'?renderPag():renderCli();
+  app.innerHTML=view.tab==='conta'?renderConta():view.tab==='riep'?renderRiep():view.tab==='cal'?renderCal():view.tab==='pag'?renderPag():view.tab==='set'?renderSet():renderCli();
   document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===view.tab));
+  const sb=document.getElementById('setBtn');if(sb)sb.classList.toggle('on',view.tab==='set');
   if(view.adding){const i=document.getElementById('newName');i&&i.focus()}
 }
 
@@ -503,12 +583,13 @@ function copy(text,msg){
 function summaryText(){
   const list=S.entries.filter(inRange),s=summarize(list);
   const label={day:fmtDay(view.day),week:'Settimana del '+fmtDay(view.day),month:parseDay(view.day).toLocaleDateString('it-IT',{month:'long',year:'numeric'}),all:'Totale complessivo'}[view.range];
-  return `Ripiegamenti – ${label}\n`+s.rows.map(r=>`${r.name}: ${r.n} × = ${eur(r.tot)}`).join('\n')+`\nTOTALE: ${s.n} ripiegamenti = ${eur(s.tot)}`;
+  return `Ripiegamenti${cfg().name?' di '+cfg().name:''} – ${label}\n`+s.rows.map(r=>`${r.name}: ${r.n} × = ${eur(r.tot)}`).join('\n')+`\nTOTALE: ${s.n} ripiegamenti = ${eur(s.tot)}`;
 }
 
 document.addEventListener('click',ev=>{
   if(ev.target.closest('#themeBtn')){const order=['auto','light','dark'];S.theme=order[(order.indexOf(S.theme||'auto')+1)%3];save();applySkin();
-    toast({auto:'Aspetto automatico, come il telefono',light:'Aspetto chiaro, per il sole',dark:'Aspetto scuro'}[S.theme]);return}
+    toast({auto:'Aspetto automatico, come il telefono',light:'Aspetto chiaro, per il sole',dark:'Aspetto scuro'}[S.theme]);if(view.tab==='set')render();return}
+  if(ev.target.closest('#setBtn')){view.tab='set';view.adding=false;view.confirm=null;view.confirmWipe=false;view.confirmPrice=false;render();window.scrollTo(0,0);return}
   const tab=ev.target.closest('.tabs button');if(tab){view.tab=tab.dataset.tab;view.adding=false;view.confirm=null;render();return}
   const b=ev.target.closest('[data-act]');if(!b)return;
   const a=b.dataset.act,id=b.dataset.id;
@@ -516,15 +597,16 @@ document.addEventListener('click',ev=>{
     case 'prev':shiftDay(-1);break;
     case 'next':shiftDay(1);break;
     case 'today':view.day=today();render();break;
-    case 'plus':{const c=clientById(id);const now=new Date();const ts=view.day===today()?now.getTime():parseDay(view.day).setHours(12,0,0,0);
-      S.entries.push({id:uid(),clientId:id,day:view.day,ts,price:c.price});save();render();
+    case 'plus':{const c=clientById(id);const now=new Date();
+      if(cfg().guard){const last=S.entries.filter(e=>e.clientId===id&&e.day===view.day).reduce((m,e)=>Math.max(m,e.created||0),0);if(Date.now()-last<1500){toast('Doppio tocco ignorato');break}}const ts=view.day===today()?now.getTime():parseDay(view.day).setHours(12,0,0,0);
+      S.entries.push({id:uid(),clientId:id,day:view.day,ts,price:c.price,created:Date.now()});save();render();
       const t=document.getElementById('tile-'+id);if(t){t.classList.add('bump');setTimeout(()=>t.classList.remove('bump'),260);
         const cn=t.querySelector('.count');cn&&cn.classList.add('pop');
         const f=document.createElement('span');f.className='fly';f.textContent='+1';t.appendChild(f);setTimeout(()=>f.remove(),750)}
-      try{navigator.vibrate&&navigator.vibrate(15)}catch(e){}break}
+      if(cfg().vibrate){try{navigator.vibrate&&navigator.vibrate(15)}catch(e){}}break}
     case 'minus':{const l=S.entries.filter(e=>e.clientId===id&&e.day===view.day).sort((a,b)=>b.ts-a.ts)[0];
       if(l){S.entries=S.entries.filter(e=>e!==l);save();render();toast('Tolto 1 ripiegamento')}break}
-    case 'clearSample':S={clients:[],entries:[],planned:{},payments:[],dayClients:{},dayNotes:{}};save();view.adding=true;render();break;
+    case 'clearSample':S={clients:[],entries:[],planned:{},payments:[],dayClients:{},dayNotes:{},set:S.set,theme:S.theme};save();view.adding=true;render();break;
     case 'addOpen':view.adding=true;render();break;
     case 'addClose':view.adding=false;render();break;
     case 'range':view.range=b.dataset.r;render();break;
@@ -539,28 +621,40 @@ document.addEventListener('click',ev=>{
     case 'noteClose':view.noteFor=null;render();break;
     case 'noteSave':setDayNote(view.day,view.noteFor,document.getElementById('dayNoteBox').value.trim());view.noteFor=null;save();render();toast('Nota salvata');break;
     case 'noteClear':setDayNote(view.day,view.noteFor,'');view.noteFor=null;save();render();break;
+    case 'setTheme':S.theme=b.dataset.v;save();applySkin();render();break;
+    case 'setAccent':S.set.accent=b.dataset.v;save();applySkin();render();break;
+    case 'setBackupDays':S.set.backupDays=Number(b.dataset.v);save();render();break;
+    case 'defMethod':S.set.defMethod=S.set.methods[Number(b.dataset.i)];save();render();break;
+    case 'delMethod':{if(S.set.methods.length<2)break;const m=S.set.methods[Number(b.dataset.i)];S.set.methods=S.set.methods.filter((x,i)=>i!==Number(b.dataset.i));
+      if(S.set.defMethod===m)S.set.defMethod=S.set.methods[0];save();render();toast(m+' tolto');break}
+    case 'priceAllAsk':view.confirmPrice=true;render();break;
+    case 'priceAllNo':view.confirmPrice=false;render();break;
+    case 'priceAllDo':S.clients.forEach(c=>c.price=S.set.price);view.confirmPrice=false;save();render();toast('Prezzo aggiornato per tutti');break;
+    case 'wipeAsk':view.confirmWipe=true;render();break;
+    case 'wipeNo':view.confirmWipe=false;render();break;
+    case 'wipeDo':S={clients:[],entries:[],planned:{},payments:[],dayClients:{},dayNotes:{},set:S.set,theme:S.theme};view.confirmWipe=false;save();render();toast('Dati cancellati');break;
     case 'shareBackup':shareBackup();break;
     case 'saveBackup':downloadBackup();break;
     case 'dayAdd':{const l=S.dayClients[view.day]||(S.dayClients[view.day]=[]);if(!l.includes(id))l.push(id);save();render();break}
     case 'dayRemove':{S.dayClients[view.day]=(S.dayClients[view.day]||[]).filter(x=>x!==id);save();render();break}
     case 'createFromSearch':{const name=document.getElementById('search').value.trim();if(!name)break;
-      if(S.sample)S={clients:[],entries:[],planned:S.planned,payments:[],dayClients:{},dayNotes:{}};
-      const c={id:uid(),name,price:DEFAULT_PRICE};S.clients.push(c);(S.dayClients[view.day]||(S.dayClients[view.day]=[])).push(c.id);save();render();toast(name+' aggiunto');break}
-    case 'payOpen':view.payFor=id;view.payMethod=view.payMethod||'Contanti';render();const pa=document.getElementById('payAmount');pa&&pa.focus();break;
+      if(S.sample)S={clients:[],entries:[],planned:S.planned,payments:[],dayClients:{},dayNotes:{},set:S.set,theme:S.theme};
+      const c={id:uid(),name,price:cfg().price};S.clients.push(c);(S.dayClients[view.day]||(S.dayClients[view.day]=[])).push(c.id);save();render();toast(name+' aggiunto');break}
+    case 'payOpen':view.payFor=id;view.payMethod=cfg().methods.includes(view.payMethod)?view.payMethod:(cfg().methods.includes(cfg().defMethod)?cfg().defMethod:cfg().methods[0]);render();const pa=document.getElementById('payAmount');pa&&pa.focus();break;
     case 'payClose':view.payFor=null;render();break;
     case 'payMethod':view.payMethod=b.dataset.m;document.querySelectorAll('[data-act="payMethod"]').forEach(x=>x.setAttribute('aria-pressed',x===b));break;
     case 'payDo':{const v=parseFloat(document.getElementById('payAmount').value);if(isNaN(v)||v<=0){toast('Inserisci un importo');break}
-      S.payments.push({id:uid(),clientId:id,day:today(),ts:Date.now(),amount:v,method:view.payMethod||'Contanti'});save();view.payFor=null;render();toast('Pagamento registrato');break}
+      S.payments.push({id:uid(),clientId:id,day:today(),ts:Date.now(),amount:v,method:view.payMethod||cfg().defMethod});save();view.payFor=null;render();toast('Pagamento registrato');break}
     case 'delPay':S.payments=S.payments.filter(p=>p.id!==id);save();render();break;
     case 'calPick':view.calSel=b.dataset.k;render();break;
     case 'calGo':view.day=view.calSel;view.tab='conta';render();break;
     case 'icsAll':{const keys=Object.keys(S.planned).filter(x=>x>=today()).sort();
       try{const url=URL.createObjectURL(new Blob([icsText(keys)],{type:'text/calendar'}));const l=document.createElement('a');l.href=url;l.download='packing-giorni.ics';document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);toast('File calendario creato')}catch(e){toast('Esportazione non disponibile qui')}break}
-    case 'exportData':copy(JSON.stringify({clients:S.clients,entries:S.entries,planned:S.planned,payments:S.payments,dayClients:S.dayClients,dayNotes:S.dayNotes}),'Backup copiato');break;
+    case 'exportData':copy(JSON.stringify({clients:S.clients,entries:S.entries,planned:S.planned,payments:S.payments,dayClients:S.dayClients,dayNotes:S.dayNotes,set:S.set,theme:S.theme}),'Backup copiato');break;
     case 'importOpen':view.importOpen=true;render();break;
     case 'importClose':view.importOpen=false;render();break;
     case 'importDo':{try{const d=JSON.parse(document.getElementById('importBox').value);if(!Array.isArray(d.clients)||!Array.isArray(d.entries))throw 0;
-      S={clients:d.clients,entries:d.entries,planned:d.planned||{},payments:d.payments||[],dayClients:d.dayClients||{},dayNotes:d.dayNotes||{}};save();view.importOpen=false;render();toast('Backup ripristinato')}catch(e){toast('Testo non valido: incolla il backup completo')}break}
+      S={clients:d.clients,entries:d.entries,planned:d.planned||{},payments:d.payments||[],dayClients:d.dayClients||{},dayNotes:d.dayNotes||{},set:Object.assign({},SET_DEFAULTS,d.set||S.set),theme:d.theme||S.theme};save();view.importOpen=false;render();toast('Backup ripristinato')}catch(e){toast('Testo non valido: incolla il backup completo')}break}
   }
 });
 document.addEventListener('focusin',ev=>{if(ev.target.id==='search')openResults()});
@@ -568,11 +662,14 @@ document.addEventListener('input',ev=>{if(ev.target.id==='search')openResults()}
 document.addEventListener('pointerdown',ev=>{const r=document.getElementById('results');if(r&&!r.hidden&&!ev.target.closest('.searchwrap'))r.hidden=true});
 document.addEventListener('keydown',ev=>{if(ev.target.id==='search'&&ev.key==='Enter'){const f=document.querySelector('#results .res');f&&f.click()}});
 document.addEventListener('submit',ev=>{
+  if(ev.target.id==='methodForm'){ev.preventDefault();const v=document.getElementById('newMethod').value.trim();
+    if(!v)return;if(S.set.methods.some(m=>m.toLowerCase()===v.toLowerCase())){toast(v+' c\'è già');return}
+    S.set.methods=[...S.set.methods,v];save();render();toast(v+' aggiunto');return}
   if(ev.target.id!=='addForm')return;ev.preventDefault();
   const name=document.getElementById('newName').value.trim();if(!name)return;
   const p=parseFloat(document.getElementById('newPrice').value);
-  if(S.sample){S={clients:[],entries:[],planned:{},payments:[],dayClients:{},dayNotes:{}}}
-  S.clients.push({id:uid(),name,price:isNaN(p)?DEFAULT_PRICE:p});save();view.adding=false;render();toast(name+' aggiunto');
+  if(S.sample){S={clients:[],entries:[],planned:{},payments:[],dayClients:{},dayNotes:{},set:S.set,theme:S.theme}}
+  S.clients.push({id:uid(),name,price:isNaN(p)?cfg().price:p});save();view.adding=false;render();toast(name+' aggiunto');
 });
 document.addEventListener('change',ev=>{
   const t=ev.target,v=parseFloat(t.value);
@@ -581,6 +678,9 @@ document.addEventListener('change',ev=>{
   if(t.id==='importFile'&&t.files&&t.files[0]){const r=new FileReader();r.onload=()=>{try{applyImport(JSON.parse(r.result))}catch(e){toast('File non valido: scegli un backup di Packing')}};r.readAsText(t.files[0]);return}
   if(t.id==='planToggle'){if(t.checked)S.planned[view.calSel]=S.planned[view.calSel]||'';else delete S.planned[view.calSel];save();render();return}
   if(t.id==='planNote'){S.planned[view.calSel]=t.value.trim();save();render();return}
+  if(t.dataset.set==='name'){S.set.name=t.value.trim();save();toast('Nome salvato');return}
+  if(t.dataset.set==='price'){const v=parseFloat(t.value);if(!isNaN(v)&&v>=0){S.set.price=v;save();render();toast('Prezzo standard: '+eur(v))}return}
+  if(t.dataset.toggle){S.set[t.dataset.toggle]=t.checked;save();return}
   if(t.dataset.cnote){const c=clientById(t.dataset.cnote);if(c){c.note=t.value.trim();save();toast('Nota salvata')}return}
   if(t.dataset.name){const c=clientById(t.dataset.name);const n=t.value.trim();if(c&&n){c.name=n;save()}}
 });
