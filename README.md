@@ -1,4 +1,3 @@
-[README.md](https://github.com/user-attachments/files/33313545/README.md)
 # Packing
 
 **A simple counter app for parachute riggers and packers.**
