@@ -146,6 +146,13 @@ button{cursor:pointer}
 .tips .tiptop b{color:var(--tip)}
 .tips>.actions{padding-top:12px!important;border-top:1px solid var(--line)}
 select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--fg);font:inherit}
+.pickbtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:15px 16px;border-radius:14px;border:1.5px dashed var(--accent);background:var(--accent-soft);color:var(--accent);font:inherit;font-size:17px;font-weight:600}
+.picker{border-color:var(--accent)}
+.res .grow{flex:1;min-width:0}
+.pick-h{display:flex;gap:8px;padding:10px;border-bottom:1px solid var(--line);align-items:center}
+.pick-h input{flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:16px;color:var(--fg)}
+.pick-h input:focus{border-color:var(--accent);outline:none}
+.picker .results{max-height:52vh;overflow-y:auto;overscroll-behavior:contain}
 .searchwrap{position:relative;display:flex;flex-direction:column;gap:6px}
 .searchwrap input{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:17px;color:var(--fg)}
 .searchwrap input:focus{border-color:var(--accent);outline:none}
@@ -278,7 +285,7 @@ const ACCENTS={
   viola:{label:'Viola',d:'#ac8dff',l:'#6a45d6',inkD:'#1c0f3d',inkL:'#ffffff'},
   rosa:{label:'Rosa',d:'#ff7ab6',l:'#c2347a',inkD:'#3a0a20',inkL:'#ffffff'},
   giallo:{label:'Giallo',d:'#ffcf3f',l:'#a87700',inkD:'#2b2000',inkL:'#ffffff'}};
-const APP_VERSION='1.6.1';
+const APP_VERSION='1.6.2';
 let view={tab:'conta',day:today(),range:'day',editing:null,adding:false,confirm:null,importOpen:false,calMonth:today().slice(0,7),calSel:today()};
 
 const clientById=id=>S.clients.find(c=>c.id===id);
@@ -358,7 +365,7 @@ function dayIds(d){
 function searchResults(raw){
   const q=raw.trim().toLowerCase(),active=new Set(dayIds(view.day));
   const list=S.clients.filter(c=>!active.has(c.id)&&(!q||(c.name+' '+(c.note||'')).toLowerCase().includes(q))).sort((a,b)=>a.name.localeCompare(b.name,'it'));
-  let html=list.slice(0,8).map(c=>`<button class="res" data-act="dayAdd" data-id="${c.id}"><span class="grow">${esc(c.name)}${c.note?`<br><span class="muted small clip1">${esc(c.note.split('\n')[0])}</span>`:''}</span><span class="muted small">${eur(c.price)}</span></button>`).join('');
+  let html=list.map(c=>`<button class="res" data-act="dayAdd" data-id="${c.id}"><span class="grow">${esc(c.name)}${c.note?`<br><span class="muted small clip1">${esc(c.note.split('\n')[0])}</span>`:''}</span><span class="muted small">${eur(c.price)}</span></button>`).join('');
   if(q&&!S.clients.some(c=>c.name.toLowerCase()===q))html+=`<button class="res new" data-act="createFromSearch">+ Nuovo cliente «${esc(raw.trim())}» a ${eur(cfg().price)}</button>`;
   if(!html)html=`<div class="muted small" style="padding:12px 14px">${S.clients.length?'Tutti i clienti sono già nella giornata.':'Scrivi un nome per creare il primo cliente.'}</div>`;
   return html;
@@ -385,14 +392,15 @@ function renderConta(){
   return `${dayBar()}
   ${S.sample?`<div class="banner">Questi sono dati di esempio.<button data-act="clearSample">Cancella e inizia</button></div>`:''}
   ${backupDue()?`<div class="banner">${S.lastBackup?'Ultimo backup '+Math.floor((Date.now()-S.lastBackup)/864e5)+' giorni fa.':'Non hai ancora fatto un backup dei dati.'}<button data-act="shareBackup">Invia backup</button></div>`:''}
-  <div class="searchwrap">
-    <input type="search" id="search" placeholder="Cerca un cliente da aggiungere…" autocomplete="off" aria-label="Cerca cliente">
-    <div class="results card" id="results" hidden></div>
-  </div>
+  ${view.pickOpen?`<div class="card picker">
+    <div class="pick-h"><input type="search" id="search" value="${esc(view.pickQ||'')}" placeholder="Filtra per nome o nota…" autocomplete="off" aria-label="Filtra clienti" enterkeyhint="done">
+      <button class="btn ghost" data-act="pickClose">Fatto</button></div>
+    <div class="results" id="results">${searchResults(view.pickQ||'')}</div>
+  </div>`:`<button class="pickbtn" data-act="pickOpen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Aggiungi cliente alla giornata</button>`}
   ${tiles?`<div class="tiles">${tiles}</div>`
-   :`<div class="empty">Nessun cliente in questa giornata.<br>Cerca qui sopra a chi stai piegando e toccalo per aggiungerlo.</div>`}${sheet}`;
+   :`<div class="empty">Nessun cliente in questa giornata.<br>Tocca «Aggiungi cliente alla giornata» e scegli a chi stai piegando.</div>`}${sheet}`;
 }
-function openResults(){const r=document.getElementById('results'),s=document.getElementById('search');if(r&&s){r.innerHTML=searchResults(s.value);r.hidden=false}}
+function openResults(){const r=document.getElementById('results'),s=document.getElementById('search');if(r&&s){view.pickQ=s.value;r.innerHTML=searchResults(s.value)}}
 function addForm(){
   return `<div class="card"><form class="form" id="addForm">
     <div class="two"><label class="f">Nome cliente<input type="text" id="newName" required autocomplete="off"></label>
@@ -706,7 +714,7 @@ document.addEventListener('click',ev=>{
   if(ev.target.closest('#themeBtn')){const order=['auto','light','dark'];S.theme=order[(order.indexOf(S.theme||'auto')+1)%3];save();applySkin();
     toast({auto:'Aspetto automatico, come il telefono',light:'Aspetto chiaro, per il sole',dark:'Aspetto scuro'}[S.theme]);if(view.tab==='set')render();return}
   if(ev.target.closest('#setBtn')){view.tab='set';view.adding=false;view.confirm=null;view.confirmWipe=false;view.confirmPrice=false;render();window.scrollTo(0,0);return}
-  const tab=ev.target.closest('.tabs button');if(tab){view.tab=tab.dataset.tab;view.adding=false;view.confirm=null;render();return}
+  const tab=ev.target.closest('.tabs button');if(tab){view.pickOpen=false;view.tab=tab.dataset.tab;view.adding=false;view.confirm=null;render();return}
   const b=ev.target.closest('[data-act]');if(!b)return;
   const a=b.dataset.act,id=b.dataset.id;
   switch(a){
@@ -755,9 +763,11 @@ document.addEventListener('click',ev=>{
     case 'rankSel':{view.rankSel=view.rankSel===id?null:id;render();if(view.rankSel){const el=document.getElementById('rdet-'+id);el&&el.scrollIntoView({behavior:'smooth',block:'nearest'})}break}
     case 'shareBackup':shareBackup();break;
     case 'saveBackup':downloadBackup();break;
-    case 'dayAdd':{const l=S.dayClients[view.day]||(S.dayClients[view.day]=[]);if(!l.includes(id))l.push(id);save();render();break}
+    case 'pickOpen':view.pickOpen=true;view.pickQ='';render();break;
+    case 'pickClose':view.pickOpen=false;view.pickQ='';render();break;
+    case 'dayAdd':{const l=S.dayClients[view.day]||(S.dayClients[view.day]=[]);if(!l.includes(id))l.push(id);save();const c=clientById(id);render();toast((c?c.name:'Cliente')+' aggiunto');break}
     case 'dayRemove':{S.dayClients[view.day]=(S.dayClients[view.day]||[]).filter(x=>x!==id);save();render();break}
-    case 'createFromSearch':{const name=document.getElementById('search').value.trim();if(!name)break;
+    case 'createFromSearch':{const name=(document.getElementById('search').value||'').trim();if(!name)break;view.pickQ='';
       if(S.sample)S={clients:[],entries:[],planned:S.planned,payments:[],dayClients:{},dayNotes:{},set:S.set,theme:S.theme};
       const c={id:uid(),name,price:cfg().price};S.clients.push(c);(S.dayClients[view.day]||(S.dayClients[view.day]=[])).push(c.id);save();render();toast(name+' aggiunto');break}
     case 'payOpen':view.payFor=id;view.payMethod=cfg().methods.includes(view.payMethod)?view.payMethod:(cfg().methods.includes(cfg().defMethod)?cfg().defMethod:cfg().methods[0]);render();const pa=document.getElementById('payAmount');pa&&pa.focus();break;
@@ -784,12 +794,10 @@ document.addEventListener('click',ev=>{
       S={clients:d.clients,entries:d.entries,planned:d.planned||{},payments:d.payments||[],dayClients:d.dayClients||{},dayNotes:d.dayNotes||{},set:Object.assign({},SET_DEFAULTS,d.set||S.set),theme:d.theme||S.theme};save();view.importOpen=false;render();toast('Backup ripristinato')}catch(e){toast('Testo non valido: incolla il backup completo')}break}
   }
 });
-document.addEventListener('focusin',ev=>{if(ev.target.id==='search')openResults()});
 document.addEventListener('input',ev=>{if(ev.target.id==='search')openResults();
   if(ev.target.id==='payAmount'){const v=parseFloat(ev.target.value),due=parseFloat(ev.target.dataset.due)||0,t=document.getElementById('payTip');
     if(t&&!isNaN(v))t.value=Math.max(0,Math.round((v-Math.max(due,0))*100)/100)}});
-document.addEventListener('pointerdown',ev=>{const r=document.getElementById('results');if(r&&!r.hidden&&!ev.target.closest('.searchwrap'))r.hidden=true});
-document.addEventListener('keydown',ev=>{if(ev.target.id==='search'&&ev.key==='Enter'){const f=document.querySelector('#results .res');f&&f.click()}});
+document.addEventListener('keydown',ev=>{if(ev.target.id==='search'&&ev.key==='Enter'){ev.target.blur()}});
 document.addEventListener('submit',ev=>{
   if(ev.target.id==='methodForm'){ev.preventDefault();const v=document.getElementById('newMethod').value.trim();
     if(!v)return;if(S.set.methods.some(m=>m.toLowerCase()===v.toLowerCase())){toast(v+' c\'è già');return}
