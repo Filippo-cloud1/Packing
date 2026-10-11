@@ -251,31 +251,118 @@ a.btn{text-decoration:none;display:inline-block;color:var(--accent)}
 (function(){
 const KEY='ripiegamenti.v1';
 const DEFAULT_PRICE=6;
-const eur=n=>n.toLocaleString('it-IT',{style:'currency',currency:'EUR'});
+const eur=n=>n.toLocaleString(LOC(),{style:'currency',currency:'EUR'});
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const pad=n=>String(n).padStart(2,'0');
 const dayKey=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
 const parseDay=k=>{const[a,b,c]=k.split('-').map(Number);return new Date(a,b-1,c)};
 const today=()=>dayKey(new Date());
-const fmtDay=k=>{const s=parseDay(k).toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});return s.charAt(0).toUpperCase()+s.slice(1)};
+const fmtDay=k=>{const s=parseDay(k).toLocaleDateString(LOC(),{weekday:'long',day:'numeric',month:'long'});return s.charAt(0).toUpperCase()+s.slice(1)};
+const isEN=()=>{try{return S.set.lang==='en'}catch(e){return false}};
+const LOC=()=>isEN()?'en-GB':'it-IT';
+const EN={
+'+ Calendario':'+ Calendar','+ Mancia senza pagamento':'+ Tip without payment','+ Nuovo cliente':'+ New client','+ Pagamento':'+ Payment',
+'Aggiungi':'Add','Aggiungi a Google Calendar':'Add to Google Calendar','Aggiungi cliente alla giornata':'Add client to the day','Al giorno':'Per day','Altro':'Other','Anno':'Year','Annulla':'Cancel',
+'Applica a tutti i clienti':'Apply to all clients','Apri il contatore di questo giorno':'Open this day’s counter','Aspetto':'Appearance','Automatico':'Automatic',
+'Backup, prezzo per i nuovi clienti e metodi di pagamento sono nelle Impostazioni (ingranaggio in alto).':'Backup, price for new clients and payment methods are in Settings (gear icon at the top).',
+'Bonifico':'Bank transfer','Calendario':'Calendar','Cancella e inizia':'Clear and start','Cancella tutti i dati':'Delete all data','Cancella tutto':'Delete everything','Cancella nota':'Delete note',
+'Cancellare tutti i clienti, ripiegamenti, pagamenti e note?':'Delete all clients, packs, payments and notes?','Chiaro':'Light','Classifica clienti':'Client ranking','Cliente':'Client','Clienti':'Clients',
+'Clienti e prezzo standard':'Clients and standard price','Clienti in debito':'Clients owing','Colore principale':'Accent color','Compare nel riepilogo che copi e mandi ai clienti.':'Shown in the summary you copy and send to clients.',
+'Conferma':'Confirm','Conta':'Count','Contanti':'Cash','Contatore':'Counter','Copia come testo':'Copy as text','Copia di sicurezza':'Backup','Copia riepilogo':'Copy summary',
+'Da incassare':'To collect','Da pagare':'To pay','Dati':'Data','Dati cancellati':'Data deleted','Dettaglio giornata':'Day details','Elimina':'Delete','Eliminare':'Delete',
+'Esporta tutti (.ics)':'Export all (.ics)','Fatto':'Done','Giornata':'Day','Giornata di oggi':'Today','Giorni':'Days','Giorno di lavoro segnato':'Working day','Giorno di lavoro':'Working day',
+'Guadagni per mese':'Earnings by month',
+'I dati restano solo su questo telefono. Manda il backup a te stesso via email o salvalo su Drive: se cambi o perdi il telefono, lo ripristini da qui (il ripristino sostituisce i dati attuali).':'Your data stays only on this phone. Email the backup to yourself or save it to Drive: if you change or lose your phone, restore it from here (restoring replaces the current data).',
+'Ignora un secondo tocco sullo stesso cliente entro 1,5 secondi.':'Ignores a second tap on the same client within 1.5 seconds.',
+'Il file .ics si apre con il calendario del telefono (Google, Samsung o iPhone) e aggiunge tutti i giorni in un colpo. Funziona nella versione installata sul telefono.':'The .ics file opens in your phone’s calendar (Google, Samsung or iPhone) and adds all days at once. Works in the version installed on your phone.',
+'Il prezzo vale per i nuovi ripiegamenti. Quelli già segnati non cambiano.':'The price applies to new packs. Packs already recorded don’t change.',
+'Il ripristino sostituisce tutti i dati attuali.':'Restoring replaces all current data.','Il saldo considera tutti i ripiegamenti segnati meno i pagamenti ricevuti.':'The balance is all recorded packs minus payments received.',
+'Il tuo nome':'Your name','Il tuo profilo':'Your profile','Importi in euro del lavoro fatto. Tocca un mese per vederne i totali per cliente.':'Euro amounts of work done. Tap a month to see its totals per client.',
+'Importo ricevuto €':'Amount received €','Impostazioni':'Settings','In totale':'All time','Incassato questo mese':'Received this month','Incolla qui il backup':'Paste the backup here','Incolla testo':'Paste text',
+'Invia backup':'Send backup','Lista nera':'Black list','Lun':'Mon','Mar':'Tue','Mer':'Wed','Gio':'Thu','Ven':'Fri','Sab':'Sat','Dom':'Sun','Mai':'Never','Mance':'Tips','Mancia €':'Tip €','Mese':'Month',
+'Metodi di pagamento':'Payment methods','Nessun backup fatto finora.':'No backup made yet.','Nessun cliente in questa giornata.':'No clients on this day.','Nessun cliente.':'No clients.',
+'Nessun pagamento registrato.':'No payments recorded.','Nessun ripiegamento in questo periodo.':'No packs in this period.','Nessun ripiegamento segnato':'No packs recorded','Nessun ripiegamento segnato.':'No packs recorded.',
+'Nessuno ti deve soldi. Tutti i clienti sono in pari.':'Nobody owes you money. All clients are settled.','Nome cliente':'Client name',
+'Non si può annullare. Le impostazioni restano. Fai prima un backup se vuoi conservarli.':'This can’t be undone. Settings are kept. Make a backup first if you want to keep them.',
+'Nota (posto, cliente, orario)':'Note (place, client, time)','Nota della giornata':'Day note','Note della giornata':'Day notes','Pagamenti':'Payments',
+'Per un caso particolare cambia il prezzo del singolo ripiegamento.':'For a special case, change the price of a single pack.','Predefinito':'Default','predefinito':'default','Prezzi':'Prices',
+'Prezzo standard per i nuovi clienti (€)':'Standard price for new clients (€)','Prezzo €':'Price €','Promemoria backup':'Backup reminder','Prossimi giorni di lavoro':'Upcoming working days',
+'Protezione doppio tocco':'Double-tap protection','Quest\'anno':'This year','Questi sono dati di esempio.':'This is sample data.','Questo mese':'This month','Registra mancia':'Record tip',
+'Registra pagamento':'Record payment','Riepilogo':'Summary','Ripieg.':'Packs','Ripiegamenti':'Packs','Ripristina':'Restore','Ripristina da file':'Restore from file','Salva':'Save','Salva file':'Save file',
+'Scegli…':'Choose…','Scuro':'Dark','Settimana':'Week','Stai guardando un giorno passato.':'You are viewing a past day.','Tema':'Theme','Tocca un cliente per vedere i dettagli.':'Tap a client to see details.',
+'Tocca un giorno sul calendario e attiva "Giorno di lavoro".':'Tap a day on the calendar and turn on "Working day".',
+'Tocca «Aggiungi cliente alla giornata» e scegli a chi stai piegando.':'Tap “Add client to the day” and choose who you’re packing for.',
+'Torna a oggi':'Back to today','Totali per cliente':'Totals per client','Tutti i clienti sono già nella giornata.':'All clients are already on this day.','Tutto':'All','Ultimi pagamenti':'Recent payments',
+'Una breve vibrazione a ogni +1.':'A short vibration on every +1.','Vibrazione al tocco':'Vibrate on tap','di cui mancia €':'of which tip €','di cui mance':'of which tips','mancia':'tip',
+'Mance ricevute da questo cliente:':'Tips from this client:','Lingua':'Language','Scrivi un nome per creare il primo cliente.':'Type a name to create the first client.',
+'Non hai ancora fatto un backup dei dati.':'You haven’t backed up your data yet.','Nessun cliente ancora.':'No clients yet.',
+// aria / placeholders
+'Arancione':'Orange','Azzurro':'Light blue','Giallo':'Yellow','Rosa':'Pink','Verde':'Green','Viola':'Purple','Cambia aspetto chiaro o scuro':'Switch light or dark look','Chiudi dettaglio':'Close details',
+'Elimina cliente':'Delete client','Elimina pagamento':'Delete payment','Es. Aviosuperficie, dalle 9':'E.g. Dropzone, from 9am','Es. Filippo':'E.g. Filippo','Es. consegnata alle 15, manca il pull-up cord…':'E.g. delivered at 3pm, pull-up cord missing…',
+'Filtra clienti':'Filter clients','Filtra per nome o nota…':'Filter by name or note…','Giorno precedente':'Previous day','Giorno successivo':'Next day','Guadagni in euro per mese':'Earnings in euro by month',
+'Mese precedente':'Previous month','Mese successivo':'Next month','Nome':'Name','Note fisse: vela, preferenze, accordi…':'Permanent notes: canopy, preferences, agreements…','Nuovo metodo, es. Revolut':'New method, e.g. Revolut',
+'Prezzo':'Price','Prezzo standard':'Standard price','Cerca cliente':'Search client','Prezzo standard per i nuovi clienti':'Standard price for new clients',
+// toasts
+'Tolto 1 ripiegamento':'Removed 1 pack','Nota salvata':'Note saved','Nome salvato':'Name saved','Prezzo aggiornato':'Price updated','Prezzo aggiornato per tutti':'Price updated for everyone',
+'Riepilogo copiato':'Summary copied','Backup copiato':'Backup copied','Backup inviato':'Backup sent','Backup salvato nei Download':'Backup saved to Downloads','Backup ripristinato':'Backup restored',
+'Pagamento registrato':'Payment recorded','Inserisci un importo':'Enter an amount','Scegli il cliente':'Choose the client','Doppio tocco ignorato':'Double tap ignored','File calendario creato':'Calendar file created',
+'Esportazione non disponibile qui':'Export not available here','Salvataggio non disponibile qui':'Saving not available here','Copia non riuscita':'Copy failed',
+'Testo non valido: incolla il backup completo':'Invalid text: paste the full backup','File non valido: scegli un backup di Packing':'Invalid file: choose a Packing backup',
+'Aspetto automatico, come il telefono':'Automatic look, like your phone','Aspetto chiaro, per il sole':'Light look, for sunlight','Aspetto scuro':'Dark look','Lingua: italiano':'Lingua: italiano','Language: English':'Language: English'
+};
+const ENP=[
+[/^(\d+) pagamento · (.+) incassati in totale$/,'$1 payment · $2 received in total'],[/^(\d+) pagamenti · (.+) incassati in totale$/,'$1 payments · $2 received in total'],
+[/^(\d+) ripiegamenti · orari e prezzi singoli$/,'$1 packs · times and single prices'],[/^(\d+) ripiegamenti segnati$/,'$1 packs recorded'],[/^(\d+) ripiegamenti$/,'$1 packs'],
+[/^(\d+) giorni$/,'$1 days'],[/^in (\d+) giorni$/,'in $1 days'],[/^Deve (.+)$/,'Owes $1'],[/^Anticipo (.+)$/,'Advance $1'],[/^In pari$/,'Settled'],[/^Lavoro (.+) · Pagato (.+)$/,'Work $1 · Paid $2'],
+[/^Packing · versione (.+)$/,'Packing · version $1'],[/^Mettere (.+) a tutti i (\d+) clienti\? I ripiegamenti già segnati non cambiano\.$/,'Set $1 for all $2 clients? Packs already recorded won’t change.'],
+[/^Nota fissa: ([\s\S]*)$/,'Permanent note: $1'],[/^Questo mese · (\d+) ripiegamenti$/,'This month · $1 packs'],[/^Mese scorso · (\d+) ripiegamenti$/,'Last month · $1 packs'],
+[/^Se ricevi più di (.+), la differenza va nelle mance\. Se era un anticipo, metti 0\.$/,'If you receive more than $1, the difference goes to tips. If it was an advance, set 0.'],
+[/^Totale · (\d+) ripiegamenti$/,'Total · $1 packs'],[/^Totale (.+) · (\d+) ripiegamenti$/,'Total $1 · $2 packs'],[/^e i suoi (\d+) ripiegamenti\?$/,'and their $1 packs?'],
+[/^In (.+) non hai ancora segnato ripiegamenti\.$/,'No packs recorded in $1 yet.'],[/^▲ nuovo rispetto a (.+)$/,'▲ new compared to $1'],[/^▲ \+(\d+)% rispetto a (.+)$/,'▲ +$1% vs $2'],
+[/^▼ (-?\d+)% rispetto a (.+)$/,'▼ $1% vs $2'],[/^= come (.+)$/,'= same as $1'],[/^Mostrati gli ultimi (\d+)\.$/,'Showing the last $1.'],[/^Nessun ripiegamento in (.+)\.$/,'No packs in $1.'],
+[/^Nessun ripiegamento segnato$/,'No packs recorded'],[/^Ultimo backup: (.+)$/,'Last backup: $1'],[/^Ultimo backup (\d+) giorni fa\.$/,'Last backup $1 days ago.'],
+[/^\+ Nuovo cliente «(.+)» a (.+)$/,'+ New client “$1” at $2'],[/^di cui mancia (.+)$/,'of which tip $1'],[/^(\d+) (?:ripiegamenti|ripiegamento)$/,'$1 packs'],
+[/^(.+) · (Contanti|Bonifico|Altro)$/,(m,a,b)=>a+' · '+EN[b]],
+[/^Aggiungi un ripiegamento per (.+)$/,'Add a pack for $1'],[/^Togli l'ultimo ripiegamento di (.+)$/,'Remove the last pack of $1'],[/^Togli (.+) dalla giornata$/,'Remove $1 from the day'],
+[/^Dettagli di (.+)$/,'Details of $1'],[/^Nota della giornata per (.+)$/,'Day note for $1'],[/^Togli (.+)$/,'Remove $1'],[/^Elimina (.+)$/,'Delete $1'],
+// toasts
+[/^(.+) aggiunto$/,'$1 added'],[/^(.+) tolto$/,'$1 removed'],[/^(.+) c'è già$/,'$1 already exists'],[/^Prezzo standard: (.+)$/,'Standard price: $1'],[/^Mancia registrata: (.+)$/,'Tip recorded: $1'],
+[/^Pagamento registrato, mancia (.+)$/,'Payment recorded, tip $1']
+];
+function tr(s){if(!isEN()||!s)return s;const k=s.replace(/\s+/g,' ').trim();const put=x=>s.includes(k)?s.replace(k,x):x;
+  if(Object.prototype.hasOwnProperty.call(EN,k))return put(EN[k]);
+  for(const [re,rep] of ENP){if(re.test(k))return put(k.replace(re,rep))}return s}
+const tm=m=>isEN()&&EN[m]?EN[m]:m;
+let trBusy=false;
+function translateDom(root){
+  if(!isEN()||trBusy)return;trBusy=true;
+  try{const w=document.createTreeWalker(root||document.body,NodeFilter.SHOW_TEXT);let n;
+    while(n=w.nextNode()){const p=n.parentNode;if(!p||p.nodeName==='SCRIPT'||p.nodeName==='STYLE'||p.nodeName==='TEXTAREA'||p.closest('[data-u]'))continue;
+      const v=n.nodeValue;if(!v.trim())continue;const t=tr(v);if(t!==v)n.nodeValue=t}
+    (root||document.body).querySelectorAll('[placeholder],[aria-label]').forEach(e=>{['placeholder','aria-label'].forEach(a=>{const v=e.getAttribute(a);if(v){const t=tr(v);if(t!==v)e.setAttribute(a,t)}})});
+  }finally{trBusy=false}
+}
+try{new MutationObserver(()=>translateDom()).observe(document.body,{childList:true,subtree:true,characterData:true})}catch(e){}
+
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 function load(){try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch(e){}return null}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 
 function sample(){
-  const c=[{id:uid(),name:'Marco (esempio)',price:6,note:'Sabre 2 170 · vuole il pro pack'},{id:uid(),name:'Scuola Skydive (esempio)',price:6},{id:uid(),name:'Giulia (esempio)',price:8}];
+  const ex=(navigator.language||'it').toLowerCase().startsWith('it')?'esempio':'example';
+  const c=[{id:uid(),name:'Marco ('+ex+')',price:6,note:ex==='esempio'?'Sabre 2 170 · vuole il pro pack':'Sabre 2 170 · wants a pro pack'},{id:uid(),name:(ex==='esempio'?'Scuola Skydive':'Skydive School')+' ('+ex+')',price:6},{id:uid(),name:'Giulia ('+ex+')',price:8}];
   const d=today(),e=[];const add=(cl,n)=>{for(let i=0;i<n;i++)e.push({id:uid(),clientId:cl.id,day:d,ts:Date.now()-i*6e5,price:cl.price})};
   add(c[0],4);add(c[1],7);add(c[2],1);
-  return {clients:c,entries:e,dayNotes:{[d]:{[c[1].id]:'2 tandem consegnati alle 15'}},payments:[{id:uid(),clientId:c[0].id,day:d,ts:Date.now(),amount:12,method:'Contanti'}],sample:true};
+  return {clients:c,entries:e,dayNotes:{[d]:{[c[1].id]:ex==='esempio'?'2 tandem consegnati alle 15':'2 tandems delivered at 3pm'}},payments:[{id:uid(),clientId:c[0].id,day:d,ts:Date.now(),amount:12,method:'Contanti'}],sample:true};
 }
 let S=load()||sample();
 S.planned=S.planned||{};
 S.payments=S.payments||[];
 S.dayNotes=S.dayNotes||{};
 if(!S.dayClients){S.dayClients={};S.entries.forEach(e=>{const l=S.dayClients[e.day]||(S.dayClients[e.day]=[]);if(!l.includes(e.clientId))l.push(e.clientId)})}
-const METHODS=['Contanti','Bonifico','Conto Bfu','PayPal','Satispay','Altro'];
-const SET_DEFAULTS={name:'',price:DEFAULT_PRICE,methods:METHODS,defMethod:'Contanti',accent:'azzurro',vibrate:true,guard:true,backupDays:7};
+const METHODS=['Contanti','Bonifico','PayPal','Satispay','Altro'];
+const SET_DEFAULTS={lang:((navigator.language||'it').toLowerCase().startsWith('it')?'it':'en'),name:'',price:DEFAULT_PRICE,methods:METHODS,defMethod:'Contanti',accent:'azzurro',vibrate:true,guard:true,backupDays:7};
 S.set=Object.assign({},SET_DEFAULTS,S.set||{});
 const cfg=()=>S.set;
 const ACCENTS={
@@ -285,7 +372,7 @@ const ACCENTS={
   viola:{label:'Viola',d:'#ac8dff',l:'#6a45d6',inkD:'#1c0f3d',inkL:'#ffffff'},
   rosa:{label:'Rosa',d:'#ff7ab6',l:'#c2347a',inkD:'#3a0a20',inkL:'#ffffff'},
   giallo:{label:'Giallo',d:'#ffcf3f',l:'#a87700',inkD:'#2b2000',inkL:'#ffffff'}};
-const APP_VERSION='1.6.2';
+const APP_VERSION='1.7.1';
 let view={tab:'conta',day:today(),range:'day',editing:null,adding:false,confirm:null,importOpen:false,calMonth:today().slice(0,7),calSel:today()};
 
 const clientById=id=>S.clients.find(c=>c.id===id);
@@ -303,7 +390,7 @@ function summarize(list){
   return {rows,n:list.length,tot:list.reduce((s,e)=>s+e.price,0)};
 }
 
-let toastT;function toast(m){const t=document.getElementById('toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,1800)}
+let toastT;function toast(m){const t=document.getElementById('toast');t.textContent=tr(m);t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,1800)}
 
 function dayBar(){
   const sum=summarize(entriesOn(view.day));
@@ -332,6 +419,7 @@ function applySkin(){
     st.setProperty('--accent',c);st.setProperty('--accent-ink',light?a.inkL:a.inkD);
     st.setProperty('--accent-soft',`rgba(${n>>16},${(n>>8)&255},${n&255},${light?.12:.16})`)}
   const sb=document.getElementById('setBtn');if(sb)sb.classList.toggle('on',view.tab==='set');
+  translateDom();
   const meta=document.querySelector('meta[name="theme-color"]');
   if(meta){const bg=getComputedStyle(root).getPropertyValue('--bg').trim();if(bg)meta.setAttribute('content',bg)}
 }
@@ -346,7 +434,7 @@ function downloadBackup(){
 async function shareBackup(){
   let f;try{f=new File([backupJSON()],backupName(),{type:'application/json'})}catch(e){}
   if(f&&navigator.canShare&&navigator.canShare({files:[f]})){
-    try{await navigator.share({files:[f],title:'Backup Packing',text:'Backup dei dati di Packing del '+fmtDay(today())});S.lastBackup=Date.now();save();render();toast('Backup inviato')}
+    try{await navigator.share({files:[f],title:'Backup Packing',text:(isEN()?'Packing data backup – ':'Backup dei dati di Packing del ')+fmtDay(today())});S.lastBackup=Date.now();save();render();toast('Backup inviato')}
     catch(e){if(e&&e.name!=='AbortError')downloadBackup()}
   }else downloadBackup();
 }
@@ -364,7 +452,7 @@ function dayIds(d){
 }
 function searchResults(raw){
   const q=raw.trim().toLowerCase(),active=new Set(dayIds(view.day));
-  const list=S.clients.filter(c=>!active.has(c.id)&&(!q||(c.name+' '+(c.note||'')).toLowerCase().includes(q))).sort((a,b)=>a.name.localeCompare(b.name,'it'));
+  const list=S.clients.filter(c=>!active.has(c.id)&&(!q||(c.name+' '+(c.note||'')).toLowerCase().includes(q))).sort((a,b)=>a.name.localeCompare(b.name,isEN()?'en':'it'));
   let html=list.map(c=>`<button class="res" data-act="dayAdd" data-id="${c.id}"><span class="grow">${esc(c.name)}${c.note?`<br><span class="muted small clip1">${esc(c.note.split('\n')[0])}</span>`:''}</span><span class="muted small">${eur(c.price)}</span></button>`).join('');
   if(q&&!S.clients.some(c=>c.name.toLowerCase()===q))html+=`<button class="res new" data-act="createFromSearch">+ Nuovo cliente «${esc(raw.trim())}» a ${eur(cfg().price)}</button>`;
   if(!html)html=`<div class="muted small" style="padding:12px 14px">${S.clients.length?'Tutti i clienti sono già nella giornata.':'Scrivi un nome per creare il primo cliente.'}</div>`;
@@ -375,9 +463,9 @@ function renderConta(){
   const tiles=dayIds(view.day).map(clientById).map(c=>{
     const mine=day.filter(e=>e.clientId===c.id),n=mine.length,dn=dayNote(view.day,c.id);
     return `<div class="tile-wrap"><button class="tile ${n?'':'zero'}" data-act="plus" data-id="${c.id}" id="tile-${c.id}" aria-label="Aggiungi un ripiegamento per ${esc(c.name)}">
-      <span class="name">${esc(c.name)}</span>
-      ${c.note?`<span class="cnote clip2">${esc(c.note)}</span>`:''}
-      ${dn?`<span class="dnote clip2">${esc(dn)}</span>`:''}
+      <span class="name" data-u>${esc(c.name)}</span>
+      ${c.note?`<span class="cnote clip2" data-u>${esc(c.note)}</span>`:''}
+      ${dn?`<span class="dnote clip2" data-u>${esc(dn)}</span>`:''}
       <span class="count">${n}</span><span class="sub">${eur(mine.reduce((s,e)=>s+e.price,0))}</span><span class="plus" aria-hidden="true">+</span>
     </button>${n?`<button class="minus" data-act="minus" data-id="${c.id}" aria-label="Togli l'ultimo ripiegamento di ${esc(c.name)}">−</button>`
       :`<button class="minus" data-act="dayRemove" data-id="${c.id}" aria-label="Togli ${esc(c.name)} dalla giornata">×</button>`}
@@ -411,7 +499,7 @@ function addForm(){
 
 function rankPeriod(kind,shift){
   const d=parseDay(view.day);
-  if(kind==='month'){const x=new Date(d.getFullYear(),d.getMonth()+shift,1);return {key:x.getFullYear()+'-'+pad(x.getMonth()+1),label:x.toLocaleDateString('it-IT',{month:'long',year:'numeric'}),short:x.toLocaleDateString('it-IT',{month:'long'})}}
+  if(kind==='month'){const x=new Date(d.getFullYear(),d.getMonth()+shift,1);return {key:x.getFullYear()+'-'+pad(x.getMonth()+1),label:x.toLocaleDateString(LOC(),{month:'long',year:'numeric'}),short:x.toLocaleDateString(LOC(),{month:'long'})}}
   if(kind==='year'){const y=d.getFullYear()+shift;return {key:String(y),label:String(y),short:String(y)}}
   return {key:'',label:'sempre',short:''};
 }
@@ -434,7 +522,7 @@ function rankDetail(r,i,kind,inline){
     <div class="st">
       <div><b>${r.n}</b><span>Ripieg.</span></div>
       <div><b>${days}</b><span>Giorni</span></div>
-      <div><b>${(r.n/days).toLocaleString('it-IT',{maximumFractionDigits:1})}</b><span>Al giorno</span></div>
+      <div><b>${(r.n/days).toLocaleString(LOC(),{maximumFractionDigits:1})}</b><span>Al giorno</span></div>
       <div><b style="${due?'color:var(--warn)':''}">${eur(due)}</b><span>Da pagare</span></div>
     </div>
     ${(()=>{const tp=tipsSum(p=>p.clientId===r.id);return tp?`<div class="small">Mance ricevute da questo cliente: <b class="tipc">${eur(tp)}</b></div>`:''})()}
@@ -472,7 +560,7 @@ function monthChart(){
   const max=Math.max(...months.map(m=>m.tot),1);
   const W=360,H=190,top=22,bottom=24,ch=H-top-bottom,slot=W/Math.max(months.length,6),bw=Math.min(36,slot*0.62);
   const bars=months.map((m,i)=>{const x=i*slot+(slot-bw)/2,h=Math.max(m.tot/max*ch,m.tot?3:1),y=top+ch-h;
-    const lab=m.d.toLocaleDateString('it-IT',{month:'short'}).replace('.','');
+    const lab=m.d.toLocaleDateString(LOC(),{month:'short'}).replace('.','');
     return `<g data-act="monthPick" data-k="${m.k}" style="cursor:pointer"><rect x="${i*slot}" y="0" width="${slot}" height="${H}" fill="transparent"></rect>
       <rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="4" fill="${m.tot?'var(--accent)':'var(--line)'}" ${i===months.length-1?'':'fill-opacity="0.8"'}></rect>
       ${m.tot?`<text x="${(x+bw/2).toFixed(1)}" y="${(y-6).toFixed(1)}" text-anchor="middle" font-size="11" fill="var(--fg)" style="font-variant-numeric:tabular-nums">${Math.round(m.tot)}</text>`:''}
@@ -538,23 +626,26 @@ const compact=k=>k.replace(/-/g,'');
 function nextDay(k){const d=parseDay(k);d.setDate(d.getDate()+1);return dayKey(d)}
 function gcalLink(k){
   const note=S.planned[k]||'';
-  const p=new URLSearchParams({action:'TEMPLATE',text:'Ripiegamenti'+(note?' – '+note:''),dates:compact(k)+'/'+compact(nextDay(k)),details:'Giornata di lavoro segnata in Packing'});
+  const p=new URLSearchParams({action:'TEMPLATE',text:(isEN()?'Parachute packing':'Ripiegamenti')+(note?' – '+note:''),dates:compact(k)+'/'+compact(nextDay(k)),details:isEN()?'Working day marked in Packing':'Giornata di lavoro segnata in Packing'});
   return 'https://calendar.google.com/calendar/render?'+p.toString();
 }
 function icsText(keys){
   const stamp=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z';
-  const ev=keys.map(k=>['BEGIN:VEVENT','UID:packing-'+k+'@packing','DTSTAMP:'+stamp,'DTSTART;VALUE=DATE:'+compact(k),'DTEND;VALUE=DATE:'+compact(nextDay(k)),'SUMMARY:Ripiegamenti'+(S.planned[k]?' - '+S.planned[k].replace(/[,;\n]/g,' '):''),'END:VEVENT'].join('\r\n'));
+  const ev=keys.map(k=>['BEGIN:VEVENT','UID:packing-'+k+'@packing','DTSTAMP:'+stamp,'DTSTART;VALUE=DATE:'+compact(k),'DTEND;VALUE=DATE:'+compact(nextDay(k)),'SUMMARY:'+(isEN()?'Parachute packing':'Ripiegamenti')+(S.planned[k]?' - '+S.planned[k].replace(/[,;\n]/g,' '):''),'END:VEVENT'].join('\r\n'));
   return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Packing//IT',...ev,'END:VCALENDAR'].join('\r\n');
 }
 function seg(act,opts,cur){return `<div class="seg">${opts.map(([v,l])=>`<button data-act="${act}" data-v="${v}" aria-pressed="${String(cur)===String(v)}">${l}</button>`).join('')}</div>`}
 function toggleRow(k,title,sub){return `<label class="switch"><span><b>${title}</b><br><span class="muted small">${sub}</span></span><input type="checkbox" id="set-${k}" data-toggle="${k}" ${cfg()[k]?'checked':''}></label>`}
 function renderSet(){
   const c=cfg();
-  const methods=c.methods.map((m,i)=>`<div class="row"><span class="grow">${esc(m)}${m===c.defMethod?' <span class="pill ok" style="margin-left:6px">predefinito</span>':''}</span>
+  const methods=c.methods.map((m,i)=>`<div class="row"><span class="grow">${esc(tm(m))}${m===c.defMethod?' <span class="pill ok" style="margin-left:6px">predefinito</span>':''}</span>
     ${m!==c.defMethod?`<button class="btn ghost small" data-act="defMethod" data-i="${i}">Predefinito</button>`:''}
     <button class="minus" style="position:static;flex:none" data-act="delMethod" data-i="${i}" aria-label="Togli ${esc(m)}" ${c.methods.length<2?'disabled style="position:static;flex:none;opacity:.35"':''}>×</button></div>`).join('');
   const sw=Object.entries(ACCENTS).map(([k,a])=>`<button class="swatch" data-act="setAccent" data-v="${k}" aria-pressed="${c.accent===k}" aria-label="${a.label}" style="background:${a.d}"></button>`).join('');
   return `<h2 style="margin-top:0">Impostazioni</h2>
+
+  <h2>Lingua / Language</h2>
+  ${seg('setLang',[['it','Italiano'],['en','English']],c.lang||'it')}
 
   <h2>Il tuo profilo</h2>
   <div class="card"><div class="form">
@@ -617,7 +708,7 @@ function renderCal(){
     cells+=`<button class="d ${k in S.planned?'plan':''} ${k===t?'today':''} ${k===view.calSel?'sel':''}" data-act="calPick" data-k="${k}" aria-label="${fmtDay(k)}">${d}${counts[k]?`<span class="n">${counts[k]}</span>`:''}</button>`}
   const k=view.calSel,planned=k in S.planned,n=S.entries.filter(e=>e.day===k).length;
   const upcoming=Object.keys(S.planned).filter(x=>x>=t).sort();
-  const monthName=first.toLocaleDateString('it-IT',{month:'long',year:'numeric'});
+  const monthName=first.toLocaleDateString(LOC(),{month:'long',year:'numeric'});
   return `<div class="calhead"><button class="navbtn" data-act="calPrev" aria-label="Mese precedente">‹</button><div class="m">${monthName}</div><button class="navbtn" data-act="calNext" aria-label="Mese successivo">›</button></div>
   <div class="cal">${cells}</div>
   <div class="legend"><span><i class="sw"></i>Giorno di lavoro segnato</span></div>
@@ -647,11 +738,11 @@ function tipsSection(){
   const mm=tipsSum(p=>p.day.startsWith(m)),yy=tipsSum(p=>p.day.startsWith(y)),all=tipsSum(()=>true);
   const by={};S.payments.forEach(p=>{if(p.tip&&clientById(p.clientId))by[p.clientId]=(by[p.clientId]||0)+p.tip});
   const top=Object.entries(by).sort((a,b)=>b[1]-a[1]).slice(0,3);
-  const opts=[...S.clients].sort((a,b)=>a.name.localeCompare(b.name,'it')).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  const opts=[...S.clients].sort((a,b)=>a.name.localeCompare(b.name,isEN()?'en':'it')).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
   const form=view.tipOpen?`<div class="form" style="border-top:1px solid var(--line)">
       <div class="two"><label class="f">Cliente<select id="tipClient"><option value="">Scegli…</option>${opts}</select></label>
       <label class="f">Mancia €<input type="number" id="tipAmount" step="0.5" min="0"></label></div>
-      <div class="seg">${cfg().methods.map(x=>`<button data-act="payMethod" data-m="${esc(x)}" aria-pressed="${view.payMethod===x}">${esc(x)}</button>`).join('')}</div>
+      <div class="seg">${cfg().methods.map(x=>`<button data-act="payMethod" data-m="${esc(x)}" aria-pressed="${view.payMethod===x}">${esc(tm(x))}</button>`).join('')}</div>
       <div class="actions"><button class="btn primary" data-act="tipDo">Registra mancia</button><button class="btn ghost" data-act="tipClose">Annulla</button></div></div>`:'';
   return `<h2>Mance</h2>
   <div class="card tips">
@@ -673,11 +764,11 @@ function renderPag(){
       <div class="two"><label class="f">Importo ricevuto €<input type="number" id="payAmount" data-due="${due}" step="0.5" min="0" value="${due>0?due:''}"></label>
       <label class="f">di cui mancia €<input type="number" id="payTip" step="0.5" min="0" value="0"></label></div>
       <span class="muted small" id="payHint">Se ricevi più di ${eur(due)}, la differenza va nelle mance. Se era un anticipo, metti 0.</span>
-      <div class="seg">${cfg().methods.map(m=>`<button data-act="payMethod" data-m="${m}" aria-pressed="${view.payMethod===m}">${m}</button>`).join('')}</div>
+      <div class="seg">${cfg().methods.map(m=>`<button data-act="payMethod" data-m="${m}" aria-pressed="${view.payMethod===m}">${esc(tm(m))}</button>`).join('')}</div>
       <div class="actions"><button class="btn primary" data-act="payDo" data-id="${c.id}">Registra pagamento</button><button class="btn ghost" data-act="payClose">Annulla</button></div>
     </div>`:`<div style="padding:0 14px 12px" class="actions"><button class="btn" data-act="payOpen" data-id="${c.id}">+ Pagamento</button></div>`}</div>`}).join('<div style="border-top:1px solid var(--line)"></div>');
   const hist=[...S.payments].sort((a,b)=>b.ts-a.ts).slice(0,30).map(p=>{const c=clientById(p.clientId);
-    return `<div class="row"><span class="grow">${esc(c?c.name:'Cliente eliminato')}<br><span class="muted small">${fmtDay(p.day)} · ${esc(p.method)}${p.tip?` · <span class="tipc">${p.tip===p.amount?'mancia':'di cui mancia '+eur(p.tip)}</span>`:''}</span></span><span class="num">${eur(p.amount)}</span>
+    return `<div class="row"><span class="grow">${esc(c?c.name:'Cliente eliminato')}<br><span class="muted small">${fmtDay(p.day)} · ${esc(tm(p.method))}${p.tip?` · <span class="tipc">${p.tip===p.amount?'mancia':'di cui mancia '+eur(p.tip)}</span>`:''}</span></span><span class="num">${eur(p.amount)}</span>
     <button class="minus" style="position:static;flex:none" data-act="delPay" data-id="${p.id}" aria-label="Elimina pagamento">×</button></div>`}).join('');
   return `<div class="totals"><div><div class="k">Da incassare</div><div class="v eur">${eur(totDue)}</div></div><div><div class="k">Clienti in debito</div><div class="v">${debtors}</div></div></div>
   <h2>Lista nera</h2>
@@ -706,8 +797,8 @@ function copy(text,msg){
 }
 function summaryText(){
   const list=S.entries.filter(inRange),s=summarize(list);
-  const label={day:fmtDay(view.day),week:'Settimana del '+fmtDay(view.day),month:parseDay(view.day).toLocaleDateString('it-IT',{month:'long',year:'numeric'}),all:'Totale complessivo'}[view.range];
-  return `Ripiegamenti${cfg().name?' di '+cfg().name:''} – ${label}\n`+s.rows.map(r=>`${r.name}: ${r.n} × = ${eur(r.tot)}`).join('\n')+`\nTOTALE: ${s.n} ripiegamenti = ${eur(s.tot)}`;
+  const E=isEN(),label={day:fmtDay(view.day),week:(E?'Week of ':'Settimana del ')+fmtDay(view.day),month:parseDay(view.day).toLocaleDateString(LOC(),{month:'long',year:'numeric'}),all:E?'All time':'Totale complessivo'}[view.range];
+  return `${E?'Packs':'Ripiegamenti'}${cfg().name?(E?' by ':' di ')+cfg().name:''} – ${label}\n`+s.rows.map(r=>`${r.name}: ${r.n} × = ${eur(r.tot)}`).join('\n')+`\n${E?'TOTAL':'TOTALE'}: ${s.n} ${E?'packs':'ripiegamenti'} = ${eur(s.tot)}`;
 }
 
 document.addEventListener('click',ev=>{
@@ -745,6 +836,7 @@ document.addEventListener('click',ev=>{
     case 'noteClose':view.noteFor=null;render();break;
     case 'noteSave':setDayNote(view.day,view.noteFor,document.getElementById('dayNoteBox').value.trim());view.noteFor=null;save();render();toast('Nota salvata');break;
     case 'noteClear':setDayNote(view.day,view.noteFor,'');view.noteFor=null;save();render();break;
+    case 'setLang':S.set.lang=b.dataset.v;document.documentElement.lang=S.set.lang;save();render();toast(S.set.lang==='en'?'Language: English':'Lingua: italiano');break;
     case 'setTheme':S.theme=b.dataset.v;save();applySkin();render();break;
     case 'setAccent':S.set.accent=b.dataset.v;save();applySkin();render();break;
     case 'setBackupDays':S.set.backupDays=Number(b.dataset.v);save();render();break;
@@ -821,6 +913,7 @@ document.addEventListener('change',ev=>{
   if(t.dataset.cnote){const c=clientById(t.dataset.cnote);if(c){c.note=t.value.trim();save();toast('Nota salvata')}return}
   if(t.dataset.name){const c=clientById(t.dataset.name);const n=t.value.trim();if(c&&n){c.name=n;save()}}
 });
+document.documentElement.lang=cfg().lang||'it';
 applySkin();
 render();
 })();

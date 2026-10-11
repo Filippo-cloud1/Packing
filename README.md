@@ -18,6 +18,7 @@ Packing helps you keep track of how many parachutes you pack, for whom, and how 
 - **Tips** – Extra money is tracked separately as tips, with monthly, yearly and total counters.
 - **Calendar** – Mark your working days, add notes, and send them to Google Calendar or any phone calendar (.ics).
 - **Notes** – Permanent notes per client (canopy, preferences, agreements) and daily notes per client.
+- **Italian & English** – Switch language anytime in Settings; dates and currency follow the chosen language.
 - **Settings** – Your name, default price, payment methods, light/dark theme, accent color, vibration, double-tap protection and backup reminders.
 - **Backup & restore** – Send a backup file to yourself by email or save it to Drive, and restore it on a new phone.
 
