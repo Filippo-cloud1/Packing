@@ -523,7 +523,7 @@ function renderCal(){
   const monthName=first.toLocaleDateString('it-IT',{month:'long',year:'numeric'});
   return `<div class="calhead"><button class="navbtn" data-act="calPrev" aria-label="Mese precedente">‹</button><div class="m">${monthName}</div><button class="navbtn" data-act="calNext" aria-label="Mese successivo">›</button></div>
   <div class="cal">${cells}</div>
-  <div class="legend"><span><i class="sw"></i>Giorno di lavoro segnato</span><span><i class="sw-n">n</i>Numero verde = ripiegamenti fatti quel giorno</span></div>
+  <div class="legend"><span><i class="sw"></i>Giorno di lavoro segnato</span></div>
   <div class="muted small">${(()=>{const n=Object.values(counts).reduce((a,b)=>a+b,0);return n?`In ${monthName}: <b style="color:var(--fg)">${n} ripiegamenti</b> in ${Object.keys(counts).length} giorni`:`In ${monthName} non hai ancora segnato ripiegamenti.`})()}</div>
   <div class="card">
     <label class="switch"><span><b>${fmtDay(k)}</b><br><span class="muted small">${n?n+' ripiegamenti segnati':'Nessun ripiegamento segnato'}</span></span>
