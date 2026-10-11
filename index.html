@@ -108,6 +108,34 @@ button{cursor:pointer}
 .btn.small{padding:6px 10px;font-size:13px}
 #methodForm{gap:10px}#methodForm input{flex:1;min-width:0}
 .card>.switch:last-child{border-bottom:0}
+:root{--gold:#f5c542;--silver:#c9d3dd;--bronze:#d08a52}
+.rk{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none;background:var(--panel-2);color:var(--muted)}
+.rk.r1{background:var(--gold);color:#3a2a00}.rk.r2{background:var(--silver);color:#1e2a36}.rk.r3{background:var(--bronze);color:#2e1500}
+.pod{display:flex;align-items:flex-end;justify-content:center;gap:8px;padding:16px 10px 0}
+.pc{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;padding:0;text-align:center;color:var(--fg)}
+.pc .nm{font-weight:600;font-size:14px;line-height:1.15;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pc .eur{font-family:var(--display);font-weight:700;font-size:19px;font-variant-numeric:tabular-nums}
+.pc .av{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:700;background:var(--panel-2);border:2px solid}
+.pc .blk{width:100%;border-radius:10px 10px 0 0;display:grid;place-items:center;font-family:var(--display);font-size:28px;font-weight:700;color:#1d2530}
+.pc.sel .av{box-shadow:0 0 0 3px var(--accent)}
+.rrow{width:100%;background:none;border:0;border-top:1px solid var(--line);color:var(--fg);font:inherit}
+.card>.rrow:first-child{border-top:0}
+.rrow.sel{background:var(--accent-soft)}
+.rrow .eur,.rdet .eur{font-family:var(--display);font-weight:700;font-size:20px;font-variant-numeric:tabular-nums}
+.rrow.sel+.rdet{background:var(--accent-soft);border-top:0;padding-top:0}
+.rdet{padding:12px;display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);background:var(--panel)}
+.card>.rdet:first-child{border-top:0}
+.rdet .dh{display:flex;align-items:center;gap:10px}.rdet .g{flex:1;min-width:0}.rdet .nm{font-weight:600;font-size:16px}
+.rdet .st{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.rdet .st div{background:var(--panel-2);border-radius:8px;padding:7px 6px;min-width:0}
+.rdet .st b{display:block;font-family:var(--display);font-size:18px;font-variant-numeric:tabular-nums}
+.rdet .st span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.up{color:var(--ok);font-size:12px;font-weight:600}.dn{color:var(--warn);font-size:12px;font-weight:600}
+.fold{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--fg);font:inherit}
+.fold .fold-t{font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.fold .chev{flex:none;color:var(--accent);transition:transform .2s}
+.fold[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.fold[aria-expanded="true"]{border-color:var(--accent)}
 .searchwrap{position:relative;display:flex;flex-direction:column;gap:6px}
 .searchwrap input{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:17px;color:var(--fg)}
 .searchwrap input:focus{border-color:var(--accent);outline:none}
@@ -245,7 +273,7 @@ const ACCENTS={
   viola:{label:'Viola',d:'#ac8dff',l:'#6a45d6',inkD:'#1c0f3d',inkL:'#ffffff'},
   rosa:{label:'Rosa',d:'#ff7ab6',l:'#c2347a',inkD:'#3a0a20',inkL:'#ffffff'},
   giallo:{label:'Giallo',d:'#ffcf3f',l:'#a87700',inkD:'#2b2000',inkL:'#ffffff'}};
-const APP_VERSION='1.11';
+const APP_VERSION='1.2';
 let view={tab:'conta',day:today(),range:'day',editing:null,adding:false,confirm:null,importOpen:false,calMonth:today().slice(0,7),calSel:today()};
 
 const clientById=id=>S.clients.find(c=>c.id===id);
@@ -368,6 +396,58 @@ function addForm(){
   </form></div>`;
 }
 
+function rankPeriod(kind,shift){
+  const d=parseDay(view.day);
+  if(kind==='month'){const x=new Date(d.getFullYear(),d.getMonth()+shift,1);return {key:x.getFullYear()+'-'+pad(x.getMonth()+1),label:x.toLocaleDateString('it-IT',{month:'long',year:'numeric'}),short:x.toLocaleDateString('it-IT',{month:'long'})}}
+  if(kind==='year'){const y=d.getFullYear()+shift;return {key:String(y),label:String(y),short:String(y)}}
+  return {key:'',label:'sempre',short:''};
+}
+function rankStats(key){
+  const by={};
+  S.entries.forEach(e=>{if(key&&!e.day.startsWith(key))return;const c=clientById(e.clientId);if(!c)return;
+    const b=by[e.clientId]||(by[e.clientId]={id:e.clientId,name:c.name,n:0,tot:0,days:new Set()});b.n++;b.tot+=e.price;b.days.add(e.day)});
+  return Object.values(by).sort((a,b)=>b.tot-a.tot||b.n-a.n);
+}
+function rankDetail(r,i,kind,inline){
+  const prevKey=kind==='all'?null:rankPeriod(kind,-1).key;
+  let trend='';
+  if(prevKey!==null){const p=rankStats(prevKey).find(x=>x.id===r.id);const pl=rankPeriod(kind,-1).short;
+    if(!p)trend=`<span class="up">▲ nuovo rispetto a ${pl}</span>`;
+    else{const pct=Math.round((r.tot-p.tot)/p.tot*100);trend=pct>0?`<span class="up">▲ +${pct}% rispetto a ${pl}</span>`:pct<0?`<span class="dn">▼ ${pct}% rispetto a ${pl}</span>`:`<span class="muted small">= come ${pl}</span>`}}
+  const due=Math.max(0,balance(r.id).due),days=r.days.size,c=clientById(r.id);
+  return `<div class="rdet" id="rdet-${r.id}">
+    ${inline?(trend?`<div>${trend}</div>`:''):`<div class="dh"><span class="rk r${i<3?i+1:''}">${i+1}</span><div class="g"><div class="nm">${esc(r.name)}</div>${trend}</div><div class="eur">${eur(r.tot)}</div>
+      <button class="minus" style="position:static;flex:none" data-act="rankSel" data-id="${r.id}" aria-label="Chiudi dettaglio">×</button></div>`}
+    <div class="st">
+      <div><b>${r.n}</b><span>Ripieg.</span></div>
+      <div><b>${days}</b><span>Giorni</span></div>
+      <div><b>${(r.n/days).toLocaleString('it-IT',{maximumFractionDigits:1})}</b><span>Al giorno</span></div>
+      <div><b style="${due?'color:var(--warn)':''}">${eur(due)}</b><span>Da pagare</span></div>
+    </div>
+    ${c&&c.note?`<div class="muted small" style="white-space:pre-wrap">${esc(c.note)}</div>`:''}
+  </div>`;
+}
+function rankSection(){
+  const kind=view.rankKind||'month',per=rankPeriod(kind,0),list=rankStats(per.key);
+  const segs=[['month','Mese'],['year','Anno'],['all','Tutto']].map(([k,l])=>`<button data-act="rankKind" data-v="${k}" aria-pressed="${kind===k}">${l}</button>`).join('');
+  const head=`<h2>Classifica clienti</h2><div class="seg">${segs}</div>`;
+  if(!list.length)return head+`<div class="empty">Nessun ripiegamento ${kind==='all'?'segnato':'in '+per.label}.</div>`;
+  const total=list.reduce((a,r)=>a+r.tot,0),sel=view.rankSel;
+  const med=['gold','silver','bronze'],h=[96,68,48];
+  const pc=i=>{const r=list[i];if(!r)return `<div class="pc"></div>`;
+    return `<button class="pc ${sel===r.id?'sel':''}" data-act="rankSel" data-id="${r.id}" aria-label="Dettagli di ${esc(r.name)}">
+      <span class="av" style="border-color:var(--${med[i]})">${esc(r.name.trim().charAt(0).toUpperCase())}</span>
+      <span class="nm">${esc(r.name)}</span><span class="eur">${eur(r.tot)}</span>
+      <span class="blk" style="height:${h[i]}px;background:var(--${med[i]})">${i+1}</span></button>`};
+  const podium=`<div class="card"><div class="pod">${pc(1)}${pc(0)}${pc(2)}</div></div>`;
+  const topDet=list.slice(0,3).findIndex(r=>r.id===sel);
+  const rest=list.slice(3).map((r,j)=>{const i=j+3;
+    return `<button class="row rrow ${sel===r.id?'sel':''}" data-act="rankSel" data-id="${r.id}"><span class="rk">${i+1}</span><span class="grow" style="text-align:left"><b>${esc(r.name)}</b><br><span class="muted small">${r.n} ripiegamenti</span></span><span class="eur">${eur(r.tot)}</span></button>${sel===r.id?rankDetail(r,i,kind,true):''}`}).join('');
+  return `${head}${podium}${topDet>=0?`<div class="card">${rankDetail(list[topDet],topDet,kind)}</div>`:''}
+  <div class="card">${rest}<div class="row total"><span class="grow">Totale ${kind==='all'?'':per.label} · ${list.reduce((a,r)=>a+r.n,0)} ripiegamenti</span><span class="num">${eur(total)}</span></div></div>
+  <p class="muted small" style="margin:0">Tocca un cliente per vedere i dettagli.</p>`;
+}
+
 function monthChart(){
   if(!S.entries.length)return '';
   const now=new Date(),months=[];
@@ -412,11 +492,13 @@ function renderRiep(){
       return `<div class="row"><span class="num muted small">${pad(t.getHours())}:${pad(t.getMinutes())}</span><span class="grow">${esc(c?c.name:'Cliente eliminato')}</span>
       <input type="number" class="price-in" id="p-${e.id}" data-price="${e.id}" step="0.5" min="0" value="${e.price}" aria-label="Prezzo">
       <button class="minus" style="position:static" data-act="delEntry" data-id="${e.id}" aria-label="Elimina">×</button></div>`}).join('');
-    detail=`<h2>Dettaglio giornata</h2><p class="muted small" style="margin:0">Per un caso particolare cambia il prezzo del singolo ripiegamento.</p><div class="card">${items}</div>`;
+    const open=!!view.detailOpen;
+    detail=`<button class="fold" data-act="toggleDetail" aria-expanded="${open}"><span class="grow"><span class="fold-t">Dettaglio giornata</span><br><span class="muted small">${list.length} ripiegamenti · orari e prezzi singoli</span></span><svg class="chev" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+    ${open?`<p class="muted small" style="margin:0">Per un caso particolare cambia il prezzo del singolo ripiegamento.</p><div class="card">${items}</div>`:''}`;
   }
   const dn=view.range==='day'?Object.entries(S.dayNotes[view.day]||{}).filter(([id])=>clientById(id)):[];
   const notes=dn.length?`<h2>Note della giornata</h2><div class="card">${dn.map(([id,t])=>`<div class="row"><span class="grow"><b>${esc(clientById(id).name)}</b><br><span class="small" style="white-space:pre-wrap">${esc(t)}</span></span></div>`).join('')}</div>`:'';
-  return `${dayBar()}<h2>Totali per cliente</h2>${seg}${table}${notes}${detail}${monthChart()}`;
+  return `${dayBar()}<h2>Totali per cliente</h2>${seg}${table}${notes}${detail}${rankSection()}${monthChart()}`;
 }
 
 function renderCli(){
@@ -635,6 +717,9 @@ document.addEventListener('click',ev=>{
     case 'wipeAsk':view.confirmWipe=true;render();break;
     case 'wipeNo':view.confirmWipe=false;render();break;
     case 'wipeDo':S={clients:[],entries:[],planned:{},payments:[],dayClients:{},dayNotes:{},set:S.set,theme:S.theme};view.confirmWipe=false;save();render();toast('Dati cancellati');break;
+    case 'toggleDetail':view.detailOpen=!view.detailOpen;render();break;
+    case 'rankKind':view.rankKind=b.dataset.v;view.rankSel=null;render();break;
+    case 'rankSel':{view.rankSel=view.rankSel===id?null:id;render();if(view.rankSel){const el=document.getElementById('rdet-'+id);el&&el.scrollIntoView({behavior:'smooth',block:'nearest'})}break}
     case 'shareBackup':shareBackup();break;
     case 'saveBackup':downloadBackup();break;
     case 'dayAdd':{const l=S.dayClients[view.day]||(S.dayClients[view.day]=[]);if(!l.includes(id))l.push(id);save();render();break}
