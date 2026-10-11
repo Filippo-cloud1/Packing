@@ -273,7 +273,7 @@ const ACCENTS={
   viola:{label:'Viola',d:'#ac8dff',l:'#6a45d6',inkD:'#1c0f3d',inkL:'#ffffff'},
   rosa:{label:'Rosa',d:'#ff7ab6',l:'#c2347a',inkD:'#3a0a20',inkL:'#ffffff'},
   giallo:{label:'Giallo',d:'#ffcf3f',l:'#a87700',inkD:'#2b2000',inkL:'#ffffff'}};
-const APP_VERSION='1.2';
+const APP_VERSION='1.3.5';
 let view={tab:'conta',day:today(),range:'day',editing:null,adding:false,confirm:null,importOpen:false,calMonth:today().slice(0,7),calSel:today()};
 
 const clientById=id=>S.clients.find(c=>c.id===id);
@@ -643,11 +643,13 @@ function renderPag(){
     return `<div class="row"><span class="grow">${esc(c?c.name:'Cliente eliminato')}<br><span class="muted small">${fmtDay(p.day)} · ${esc(p.method)}</span></span><span class="num">${eur(p.amount)}</span>
     <button class="minus" style="position:static;flex:none" data-act="delPay" data-id="${p.id}" aria-label="Elimina pagamento">×</button></div>`}).join('');
   return `<div class="totals"><div><div class="k">Da incassare</div><div class="v eur">${eur(totDue)}</div></div><div><div class="k">Clienti in debito</div><div class="v">${debtors}</div></div></div>
-  <h2>Chi deve pagare</h2>
+  <h2>Lista nera</h2>
   <p class="muted small" style="margin:0">Il saldo considera tutti i ripiegamenti segnati meno i pagamenti ricevuti.</p>
   ${list.length?`<div class="card">${rows}</div>`:`<div class="empty">Nessuno ti deve soldi. Tutti i clienti sono in pari.</div>`}
-  <h2>Ultimi pagamenti</h2>
-  ${hist?`<div class="card">${hist}</div>`:`<div class="empty">Nessun pagamento registrato.</div>`}`;
+  ${hist?(()=>{const n=Math.min(S.payments.length,30),open=!!view.payHistOpen,tot=S.payments.reduce((a,p)=>a+p.amount,0);
+    return `<button class="fold" data-act="togglePayHist" aria-expanded="${open}"><span class="grow"><span class="fold-t">Ultimi pagamenti</span><br><span class="muted small">${S.payments.length} ${S.payments.length===1?'pagamento':'pagamenti'} · ${eur(tot)} incassati in totale</span></span><svg class="chev" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+    ${open?`<div class="card">${hist}</div>${S.payments.length>n?`<p class="muted small" style="margin:0">Mostrati gli ultimi ${n}.</p>`:''}`:''}`})()
+  :`<h2>Ultimi pagamenti</h2><div class="empty">Nessun pagamento registrato.</div>`}`;
 }
 
 function render(){
@@ -717,6 +719,7 @@ document.addEventListener('click',ev=>{
     case 'wipeAsk':view.confirmWipe=true;render();break;
     case 'wipeNo':view.confirmWipe=false;render();break;
     case 'wipeDo':S={clients:[],entries:[],planned:{},payments:[],dayClients:{},dayNotes:{},set:S.set,theme:S.theme};view.confirmWipe=false;save();render();toast('Dati cancellati');break;
+    case 'togglePayHist':view.payHistOpen=!view.payHistOpen;render();break;
     case 'toggleDetail':view.detailOpen=!view.detailOpen;render();break;
     case 'rankKind':view.rankKind=b.dataset.v;view.rankSel=null;render();break;
     case 'rankSel':{view.rankSel=view.rankSel===id?null:id;render();if(view.rankSel){const el=document.getElementById('rdet-'+id);el&&el.scrollIntoView({behavior:'smooth',block:'nearest'})}break}
