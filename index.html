@@ -237,6 +237,11 @@ a.btn{text-decoration:none;display:inline-block;color:var(--accent)}
 .tile-wrap>.minus{right:84px!important;top:14px!important}
 .tile-wrap>.minus.notebtn{top:auto!important;bottom:14px!important}
 .tile .fly{right:150px!important;bottom:auto!important;top:8px!important}
+.clip3{display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;-webkit-line-clamp:3}
+.tile .tl .cnote{font-size:15px!important;line-height:1.3!important;color:var(--fg)!important;opacity:.82;white-space:pre-line}
+.tile .tl .dnote{font-size:15px!important;line-height:1.3!important;font-weight:600;white-space:pre-line}
+.fixnote{background:var(--panel-2);border-radius:12px;padding:10px 12px;font-size:16px;line-height:1.35;white-space:pre-wrap}
+.fixnote .k{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
 @media (prefers-reduced-motion:reduce){.tile{transition:none}.tile:active{transform:none}.tile .fly,.tile .count.pop{animation:none}.tile .fly{display:none}}
 </style>
 </head>
@@ -306,7 +311,7 @@ const EN={
 'Tocca «Aggiungi cliente alla giornata» e scegli a chi stai piegando.':'Tap “Add client to the day” and choose who you’re packing for.',
 'Torna a oggi':'Back to today','Totali per cliente':'Totals per client','Tutti i clienti sono già nella giornata.':'All clients are already on this day.','Tutto':'All','Ultimi pagamenti':'Recent payments',
 'Una breve vibrazione a ogni +1.':'A short vibration on every +1.','Vibrazione al tocco':'Vibrate on tap','di cui mancia €':'of which tip €','di cui mance':'of which tips','mancia':'tip',
-'Mance ricevute da questo cliente:':'Tips from this client:','Lingua':'Language','Scrivi un nome per creare il primo cliente.':'Type a name to create the first client.',
+'Mance ricevute da questo cliente:':'Tips from this client:','Nota fissa':'Permanent note','Lingua':'Language','Scrivi un nome per creare il primo cliente.':'Type a name to create the first client.',
 'Non hai ancora fatto un backup dei dati.':'You haven’t backed up your data yet.','Nessun cliente ancora.':'No clients yet.',
 // aria / placeholders
 'Arancione':'Orange','Azzurro':'Light blue','Giallo':'Yellow','Rosa':'Pink','Verde':'Green','Viola':'Purple','Cambia aspetto chiaro o scuro':'Switch light or dark look','Chiudi dettaglio':'Close details',
@@ -384,7 +389,7 @@ const ACCENTS={
   viola:{label:'Viola',d:'#ac8dff',l:'#6a45d6',inkD:'#1c0f3d',inkL:'#ffffff'},
   rosa:{label:'Rosa',d:'#ff7ab6',l:'#c2347a',inkD:'#3a0a20',inkL:'#ffffff'},
   giallo:{label:'Giallo',d:'#ffcf3f',l:'#a87700',inkD:'#2b2000',inkL:'#ffffff'}};
-const APP_VERSION='1.8';
+const APP_VERSION='1.8.1';
 let view={tab:'conta',day:today(),range:'day',editing:null,adding:false,confirm:null,importOpen:false,calMonth:today().slice(0,7),calSel:today()};
 
 const clientById=id=>S.clients.find(c=>c.id===id);
@@ -476,8 +481,8 @@ function renderConta(){
     const mine=day.filter(e=>e.clientId===c.id),n=mine.length,dn=dayNote(view.day,c.id);
     return `<div class="tile-wrap"><button class="tile ${n?'':'zero'}" data-act="plus" data-id="${c.id}" id="tile-${c.id}" aria-label="Aggiungi un ripiegamento per ${esc(c.name)}">
       <span class="tl"><span class="name" data-u>${esc(c.name)}</span>
-      ${c.note?`<span class="cnote clip1" data-u>${esc(c.note)}</span>`:''}
-      ${dn?`<span class="dnote clip1" data-u>${esc(dn)}</span>`:''}</span>
+      ${c.note?`<span class="cnote clip3" data-u>${esc(c.note)}</span>`:''}
+      ${dn?`<span class="dnote clip3" data-u>${esc(dn)}</span>`:''}</span>
       <span class="tc"><span class="count">${n}</span><span class="sub">${eur(mine.reduce((s,e)=>s+e.price,0))}</span></span><span class="plus" aria-hidden="true">+</span>
     </button>${n?`<button class="minus" data-act="minus" data-id="${c.id}" aria-label="Togli l'ultimo ripiegamento di ${esc(c.name)}">−</button>`
       :`<button class="minus" data-act="dayRemove" data-id="${c.id}" aria-label="Togli ${esc(c.name)} dalla giornata">×</button>`}
@@ -485,7 +490,7 @@ function renderConta(){
   const nc=view.noteFor&&clientById(view.noteFor);
   const sheet=nc?`<div class="scrim" data-act="noteClose"></div><div class="sheet" role="dialog" aria-label="Nota della giornata">
     <div class="sheet-h"><b>${esc(nc.name)}</b><span class="muted small">${fmtDay(view.day)}</span></div>
-    ${nc.note?`<div class="muted small" style="white-space:pre-wrap">Nota fissa: ${esc(nc.note)}</div>`:''}
+    ${nc.note?`<div class="fixnote"><span class="k">Nota fissa</span><div data-u>${esc(nc.note)}</div></div>`:''}
     <label class="f">Nota della giornata<textarea id="dayNoteBox" rows="3" placeholder="Es. consegnata alle 15, manca il pull-up cord…">${esc(dayNote(view.day,nc.id))}</textarea></label>
     <div class="actions"><button class="btn primary" data-act="noteSave">Salva</button><button class="btn ghost" data-act="noteClose">Annulla</button>${dayNote(view.day,nc.id)?`<button class="btn ghost" data-act="noteClear" style="margin-left:auto;color:var(--danger)">Cancella nota</button>`:''}</div>
   </div>`:'';
