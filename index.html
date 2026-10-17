@@ -71,30 +71,29 @@ button{cursor:pointer}
 .banner button{background:none;border:0;color:var(--accent);font-weight:600;padding:4px 0}
 
 /* client tiles */
-.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.tile{position:relative;overflow:hidden;width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:150px;padding:16px;border-radius:18px;border:1px solid var(--line);background:var(--panel);text-align:left;transition:transform .08s,background .25s,border-color .25s}
+/* client bands on the Conta page: name/notes left, count, small actions, big + */
+.tiles{display:grid;grid-template-columns:1fr;gap:10px}
+.tile-wrap{position:relative;display:flex}
+.tile{position:relative;overflow:hidden;width:100%;display:flex;align-items:center;gap:12px;min-height:104px;padding:12px 140px 12px 16px;border-radius:18px;border:1px solid var(--line);background:var(--panel);text-align:left;transition:transform .08s,background .25s,border-color .25s}
 .tile:active{transform:scale(.97)}
 .tile.bump{background:var(--accent-soft);border-color:var(--accent)}
-.tile .name{font-weight:600;font-size:18px;line-height:1.2;overflow-wrap:anywhere;padding-right:40px}
-.tile .count{font-family:var(--display);font-weight:700;font-size:60px;line-height:.95;margin-top:auto;font-variant-numeric:tabular-nums;color:var(--accent)}
+.tile .tl{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.tile .name{font-weight:600;font-size:19px;line-height:1.2;overflow-wrap:anywhere}
+.tile .cnote{font-size:15px;line-height:1.3;color:var(--fg);opacity:.82;white-space:pre-line;overflow-wrap:anywhere}
+.tile .tc{display:flex;flex-direction:column;align-items:flex-end;flex:none}
+.tile .count{font-family:var(--display);font-weight:700;font-size:52px;line-height:.9;font-variant-numeric:tabular-nums;color:var(--accent)}
 .tile.zero .count{color:var(--muted)}
 .tile .sub{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
-.tile .plus{position:absolute;right:12px;bottom:12px;width:48px;height:48px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700;font-size:28px;line-height:1}
-.tile .fly{position:absolute;right:20px;bottom:60px;font-family:var(--display);font-weight:700;font-size:28px;color:var(--accent);pointer-events:none;animation:fly .7s ease-out forwards}
+.tile .plus{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:58px;height:58px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700;font-size:32px;line-height:1}
+.tile .fly{position:absolute;right:150px;top:8px;font-family:var(--display);font-weight:700;font-size:28px;color:var(--accent);pointer-events:none;animation:fly .7s ease-out forwards}
 .tile .count.pop{animation:pop .3s ease-out}
 @keyframes fly{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-46px)}}
 @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
-.minus{position:absolute;top:8px;right:8px;width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--muted);font-size:20px;line-height:1;display:grid;place-items:center}
-.tile-wrap{position:relative;display:flex}
-.addtile{min-height:118px;border-radius:14px;border:1px dashed var(--line);background:none;color:var(--muted);font-weight:600}
-
-.cnote,.dnote{font-size:13px;line-height:1.3;color:var(--muted);padding-right:40px;overflow-wrap:anywhere}
-.dnote{color:var(--accent);font-weight:500}
-.clip1,.clip2{display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}
-.clip1{-webkit-line-clamp:1}.clip2{-webkit-line-clamp:2}
-.tile .count{margin-top:auto;padding-top:6px}
-.minus.notebtn{top:52px}
-.minus.notebtn.on{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
+.minus{width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--muted);font-size:20px;line-height:1;display:grid;place-items:center;flex:none}
+.tile-wrap>.minus{position:absolute;right:84px;top:14px}
+.tile-wrap>.minus.donebtn{top:auto;bottom:14px;color:var(--ok)}
+.clip1,.clip3{display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}
+.clip1{-webkit-line-clamp:1}.clip3{-webkit-line-clamp:3}
 .note-in{min-height:0;font-family:var(--body);font-size:14px}
 .crow{border-top:1px solid var(--line)}.crow:first-child{border-top:0}
 .scrim{position:fixed;inset:0;background:rgba(3,10,20,.55);z-index:6}
@@ -108,15 +107,17 @@ button{cursor:pointer}
 .btn.small{padding:6px 10px;font-size:13px}
 #methodForm{gap:10px}#methodForm input{flex:1;min-width:0}
 .card>.switch:last-child{border-bottom:0}
-:root{--tip:#f5c542;--gold:#f5c542;--silver:#c9d3dd;--bronze:#d08a52}
+/* ranking medals (sober metals) and tips (green, like money gained) */
+:root{--gold:#c9a85a;--silver:#a3afbb;--bronze:#b5805d;--tip:var(--ok)}
 .rk{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none;background:var(--panel-2);color:var(--muted)}
-.rk.r1{background:var(--gold);color:#3a2a00}.rk.r2{background:var(--silver);color:#1e2a36}.rk.r3{background:var(--bronze);color:#2e1500}
+.rk.r1{background:var(--gold)}.rk.r2{background:var(--silver)}.rk.r3{background:var(--bronze)}.rk.r1,.rk.r2,.rk.r3{color:#1d2530}
 .pod{display:flex;align-items:flex-end;justify-content:center;gap:8px;padding:16px 10px 0}
 .pc{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;padding:0;text-align:center;color:var(--fg)}
 .pc .nm{font-weight:600;font-size:14px;line-height:1.15;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pc .eur{font-family:var(--display);font-weight:700;font-size:19px;font-variant-numeric:tabular-nums}
 .pc .av{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:700;background:var(--panel-2);border:2px solid}
-.pc .blk{width:100%;border-radius:10px 10px 0 0;display:grid;place-items:center;font-family:var(--display);font-size:28px;font-weight:700;color:#1d2530}
+.pc .blk{width:100%;border-radius:10px 10px 0 0;display:grid;place-items:center;font-family:var(--display);font-size:28px;font-weight:700;color:var(--fg);background:var(--panel-2);border-top:5px solid var(--line)}
+.pc .blk.m-gold{border-top-color:var(--gold)}.pc .blk.m-silver{border-top-color:var(--silver)}.pc .blk.m-bronze{border-top-color:var(--bronze)}
 .pc.sel .av{box-shadow:0 0 0 3px var(--accent)}
 .rrow{width:100%;background:none;border:0;border-top:1px solid var(--line);color:var(--fg);font:inherit}
 .card>.rrow:first-child{border-top:0}
@@ -225,33 +226,10 @@ a.btn{text-decoration:none;display:inline-block;color:var(--accent)}
 .paybox{display:flex;flex-direction:column;gap:10px;padding:0 14px 14px;border-top:1px dashed var(--line);padding-top:12px}
 
 .toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:600;font-size:14px;z-index:5;max-width:calc(100% - 32px)}
-/* client rows (long bands) */
-.tiles{grid-template-columns:1fr!important}
-.tile{flex-direction:row!important;align-items:center!important;min-height:104px!important;padding:12px 140px 12px 16px!important;gap:12px!important}
-.tile .tl{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
-.tile .tl .name{padding-right:0!important;font-size:19px}
-.tile .tl .cnote,.tile .tl .dnote{padding-right:0!important}
-.tile .tc{display:flex;flex-direction:column;align-items:flex-end;flex:none}
-.tile .count{margin-top:0!important;padding-top:0!important;font-size:52px!important;line-height:.9!important}
-.tile .plus{top:50%;bottom:auto!important;right:14px!important;transform:translateY(-50%);width:58px!important;height:58px!important;font-size:32px!important}
-.tile-wrap>.minus{right:84px!important;top:14px!important}
-.tile-wrap>.minus.notebtn{top:auto!important;bottom:14px!important}
-.tile .fly{right:150px!important;bottom:auto!important;top:8px!important}
-.clip3{display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;-webkit-line-clamp:3}
-.tile .tl .cnote{font-size:15px!important;line-height:1.3!important;color:var(--fg)!important;opacity:.82;white-space:pre-line}
-.tile .tl .dnote{font-size:15px!important;line-height:1.3!important;font-weight:600;white-space:pre-line}
+.updbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:6;display:flex;align-items:center;gap:12px;background:var(--panel-2);border:1px solid var(--accent);border-radius:999px;padding:8px 8px 8px 16px;font-weight:600;font-size:14px;box-shadow:0 6px 24px rgba(0,0,0,.3);max-width:calc(100% - 32px)}
 .fixnote{background:var(--panel-2);border-radius:12px;padding:10px 12px;font-size:16px;line-height:1.35;white-space:pre-wrap}
 .fixnote .k{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
-.tile{min-height:120px!important}
-.tile-wrap>.minus{width:34px!important;height:34px!important;top:10px!important}
-.tile-wrap>.minus.notebtn{top:50%!important;bottom:auto!important;transform:translateY(-50%)}
-.tile-wrap>.minus.donebtn{top:auto!important;bottom:10px!important;color:var(--ok)}
 .finrow{gap:10px}.finrow b{font-weight:600}
-/* podium: sober metals, dark blocks with metal stripe */
-:root{--gold:#c9a85a;--silver:#a3afbb;--bronze:#b5805d;--tip:var(--ok)}
-.pc .blk{background:var(--panel-2)!important;border-top:5px solid;color:var(--fg)!important}
-.pod .pc:nth-child(1) .blk{border-color:var(--silver)}.pod .pc:nth-child(2) .blk{border-color:var(--gold)}.pod .pc:nth-child(3) .blk{border-color:var(--bronze)}
-.rk.r1,.rk.r2,.rk.r3{color:#1d2530!important}
 @media (prefers-reduced-motion:reduce){.tile{transition:none}.tile:active{transform:none}.tile .fly,.tile .count.pop{animation:none}.tile .fly{display:none}}
 </style>
 </head>
@@ -273,6 +251,7 @@ a.btn{text-decoration:none;display:inline-block;color:var(--accent)}
   <button role="tab" id="t-cal" data-tab="cal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendario</button>
 </div></nav>
 <div class="toast" id="toast" hidden></div>
+<div class="updbar" id="updBar" hidden><span>Nuova versione pronta</span><button class="btn primary small" id="updBtn">Aggiorna</button></div>
 
 <script>
 (function(){
@@ -321,7 +300,7 @@ const EN={
 'Tocca «Aggiungi cliente alla giornata» e scegli a chi stai piegando.':'Tap “Add client to the day” and choose who you’re packing for.',
 'Torna a oggi':'Back to today','Totali per cliente':'Totals per client','Tutti i clienti sono già nella giornata.':'All clients are already on this day.','Tutto':'All','Ultimi pagamenti':'Recent payments',
 'Una breve vibrazione a ogni +1.':'A short vibration on every +1.','Vibrazione al tocco':'Vibrate on tap','di cui mancia €':'of which tip €','di cui mance':'of which tips','mancia':'tip',
-'Mance ricevute da questo cliente:':'Tips from this client:','Nota fissa':'Permanent note','Riapri':'Reopen','Pagato':'Paid','Tutti i clienti di oggi hanno finito.':'All of today\u2019s clients are done.','Saldato: spostato tra i finiti di oggi':'Settled: moved to today\u2019s finished','Lingua':'Language','Scrivi un nome per creare il primo cliente.':'Type a name to create the first client.',
+'Mance ricevute da questo cliente:':'Tips from this client:','Nota fissa':'Permanent note','Nuova versione pronta':'New version ready','Aggiorna':'Update','Ripristinare questo backup?':'Restore this backup?','I dati attuali verranno sostituiti. Ne tengo una copia, così puoi annullare il ripristino.':'Current data will be replaced. A copy is kept so you can undo the restore.','Dati precedenti ripristinati':'Previous data restored','Attenzione: non riesco a salvare i dati su questo telefono. Fai subito un backup.':'Warning: data can\u2019t be saved on this phone. Make a backup now.','Riapri':'Reopen','Pagato':'Paid','Tutti i clienti di oggi hanno finito.':'All of today\u2019s clients are done.','Saldato: spostato tra i finiti di oggi':'Settled: moved to today\u2019s finished','Lingua':'Language','Scrivi un nome per creare il primo cliente.':'Type a name to create the first client.',
 'Non hai ancora fatto un backup dei dati.':'You haven’t backed up your data yet.','Nessun cliente ancora.':'No clients yet.',
 // aria / placeholders
 'Arancione':'Orange','Azzurro':'Light blue','Giallo':'Yellow','Rosa':'Pink','Verde':'Green','Viola':'Purple','Cambia aspetto chiaro o scuro':'Switch light or dark look','Chiudi dettaglio':'Close details',
@@ -353,7 +332,7 @@ const ENP=[
 [/^Aggiungi un ripiegamento per (.+)$/,'Add a pack for $1'],[/^Togli l'ultimo ripiegamento di (.+)$/,'Remove the last pack of $1'],[/^Togli (.+) dalla giornata$/,'Remove $1 from the day'],
 [/^Dettagli di (.+)$/,'Details of $1'],[/^Nota della giornata per (.+)$/,'Day note for $1'],[/^Togli (.+)$/,'Remove $1'],[/^Elimina (.+)$/,'Delete $1'],
 // toasts
-[/^Finiti oggi · (\d+)$/,'Finished today · $1'],[/^(.+) spostato tra i finiti$/,'$1 moved to finished'],[/^(.+) riaperto$/,'$1 reopened'],[/^Segna (.+) come finito$/,'Mark $1 as finished'],[/^(.+) aggiunto$/,'$1 added'],[/^(.+) tolto$/,'$1 removed'],[/^(.+) c'è già$/,'$1 already exists'],[/^Prezzo standard: (.+)$/,'Standard price: $1'],[/^Mancia registrata: (.+)$/,'Tip recorded: $1'],
+[/^Backup del (.+) · (\d+) clienti · (\d+) ripiegamenti · (\d+) pagamenti$/,'Backup of $1 · $2 clients · $3 packs · $4 payments'],[/^(\d+) clienti · (\d+) ripiegamenti · (\d+) pagamenti$/,'$1 clients · $2 packs · $3 payments'],[/^Annulla l'ultimo ripristino \(dati del (.+)\)$/,'Undo last restore (data from $1)'],[/^Finiti oggi · (\d+)$/,'Finished today · $1'],[/^(.+) spostato tra i finiti$/,'$1 moved to finished'],[/^(.+) riaperto$/,'$1 reopened'],[/^Segna (.+) come finito$/,'Mark $1 as finished'],[/^(.+) aggiunto$/,'$1 added'],[/^(.+) tolto$/,'$1 removed'],[/^(.+) c'è già$/,'$1 already exists'],[/^Prezzo standard: (.+)$/,'Standard price: $1'],[/^Mancia registrata: (.+)$/,'Tip recorded: $1'],
 [/^Pagamento registrato, mancia (.+)$/,'Payment recorded, tip $1']
 ];
 function tr(s){if(!isEN()||!s)return s;const k=s.replace(/\s+/g,' ').trim();const put=x=>s.includes(k)?s.replace(k,x):x;
@@ -369,12 +348,15 @@ function translateDom(root){
     (root||document.body).querySelectorAll('[placeholder],[aria-label]').forEach(e=>{['placeholder','aria-label'].forEach(a=>{const v=e.getAttribute(a);if(v){const t=tr(v);if(t!==v)e.setAttribute(a,t)}})});
   }finally{trBusy=false}
 }
-try{new MutationObserver(()=>translateDom()).observe(document.body,{childList:true,subtree:true,characterData:true})}catch(e){}
+let trQueued=false;
+try{new MutationObserver(()=>{if(!isEN()||trBusy||trQueued)return;trQueued=true;requestAnimationFrame(()=>{trQueued=false;translateDom()})}).observe(document.body,{childList:true,subtree:true,characterData:true})}catch(e){}
 
+const num=v=>parseFloat(String(v==null?'':v).replace(',','.').replace(/[^0-9.\-]/g,''));
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 function load(){try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch(e){}return null}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+let saveWarned=0;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){if(Date.now()-saveWarned>60000){saveWarned=Date.now();setTimeout(()=>toast('Attenzione: non riesco a salvare i dati su questo telefono. Fai subito un backup.'),50)}}}
 
 function sample(){
   const ex=(navigator.language||'it').toLowerCase().startsWith('it')?'esempio':'example';
@@ -400,7 +382,7 @@ const ACCENTS={
   viola:{label:'Viola',d:'#ac8dff',l:'#6a45d6',inkD:'#1c0f3d',inkL:'#ffffff'},
   rosa:{label:'Rosa',d:'#ff7ab6',l:'#c2347a',inkD:'#3a0a20',inkL:'#ffffff'},
   giallo:{label:'Giallo',d:'#ffcf3f',l:'#a87700',inkD:'#2b2000',inkL:'#ffffff'}};
-const APP_VERSION='1.9';
+const APP_VERSION='1.9.1';
 let view={tab:'conta',day:today(),range:'day',editing:null,adding:false,confirm:null,importOpen:false,calMonth:today().slice(0,7),calSel:today()};
 
 const clientById=id=>S.clients.find(c=>c.id===id);
@@ -466,11 +448,26 @@ async function shareBackup(){
     catch(e){if(e&&e.name!=='AbortError')downloadBackup()}
   }else downloadBackup();
 }
-function applyImport(d){
+const PREV_KEY=KEY+'.prima-del-ripristino';
+function cleanImport(d){
   if(!d||!Array.isArray(d.clients)||!Array.isArray(d.entries))throw new Error('bad');
-  S={clients:d.clients,entries:d.entries,planned:d.planned||{},payments:d.payments||[],dayClients:d.dayClients||{},dayNotes:d.dayNotes||{},dayDone:d.dayDone||{},set:Object.assign({},SET_DEFAULTS,d.set||S.set),theme:d.theme||S.theme,lastBackup:Date.now()};
-  save();view.importOpen=false;render();toast('Backup ripristinato');
+  const ok=o=>o&&typeof o==='object';
+  const clients=d.clients.filter(c=>ok(c)&&c.id&&typeof c.name==='string').map(c=>({...c,price:isFinite(c.price)?Number(c.price):cfg().price}));
+  const ids=new Set(clients.map(c=>c.id));
+  const entries=d.entries.filter(e=>ok(e)&&ids.has(e.clientId)&&/^\d{4}-\d{2}-\d{2}$/.test(e.day)&&isFinite(e.price)).map(e=>({...e,price:Number(e.price)}));
+  const payments=(Array.isArray(d.payments)?d.payments:[]).filter(p=>ok(p)&&ids.has(p.clientId)&&isFinite(p.amount)&&/^\d{4}-\d{2}-\d{2}$/.test(p.day));
+  const obj=x=>ok(x)&&!Array.isArray(x)?x:{};
+  return {clients,entries,payments,planned:obj(d.planned),dayClients:obj(d.dayClients),dayNotes:obj(d.dayNotes),dayDone:obj(d.dayDone),set:Object.assign({},SET_DEFAULTS,ok(d.set)?d.set:S.set),theme:d.theme||S.theme,saved:d.saved||''};
 }
+function askImport(d){view.pendingImport=cleanImport(d);view.importOpen=false;view.tab='set';render();const el=document.getElementById('importConfirm');el&&el.scrollIntoView({behavior:'smooth',block:'center'})}
+function applyImport(){
+  const n=view.pendingImport;if(!n)return;
+  try{localStorage.setItem(PREV_KEY,JSON.stringify({at:Date.now(),data:S}))}catch(e){}
+  const {saved,...data}=n;S={...data,lastBackup:Date.now()};view.pendingImport=null;
+  save();applySkin();render();toast('Backup ripristinato');
+}
+function prevCopy(){try{const r=localStorage.getItem(PREV_KEY);return r?JSON.parse(r):null}catch(e){return null}}
+function undoImport(){const p=prevCopy();if(!p||!p.data)return;S=p.data;try{localStorage.removeItem(PREV_KEY)}catch(e){}save();applySkin();render();toast('Dati precedenti ripristinati')}
 function dayNote(d,cid){return ((S.dayNotes||{})[d]||{})[cid]||''}
 function setDayNote(d,cid,txt){const m=S.dayNotes[d]||(S.dayNotes[d]={});if(txt)m[cid]=txt;else{delete m[cid];if(!Object.keys(m).length)delete S.dayNotes[d]}}
 function dayIds(d){
@@ -490,28 +487,21 @@ function renderConta(){
   const day=entriesOn(view.day);
   const doneSet=new Set(S.dayDone[view.day]||[]),allIds=dayIds(view.day);
   const tiles=allIds.filter(id=>!doneSet.has(id)).map(clientById).map(c=>{
-    const mine=day.filter(e=>e.clientId===c.id),n=mine.length,dn=dayNote(view.day,c.id);
+    const mine=day.filter(e=>e.clientId===c.id),n=mine.length;
     return `<div class="tile-wrap"><button class="tile ${n?'':'zero'}" data-act="plus" data-id="${c.id}" id="tile-${c.id}" aria-label="Aggiungi un ripiegamento per ${esc(c.name)}">
       <span class="tl"><span class="name" data-u>${esc(c.name)}</span>
       ${c.note?`<span class="cnote clip3" data-u>${esc(c.note)}</span>`:''}
-      ${dn?`<span class="dnote clip3" data-u>${esc(dn)}</span>`:''}</span>
+</span>
       <span class="tc"><span class="count">${n}</span><span class="sub">${eur(mine.reduce((s,e)=>s+e.price,0))}</span></span><span class="plus" aria-hidden="true">+</span>
     </button>${n?`<button class="minus" data-act="minus" data-id="${c.id}" aria-label="Togli l'ultimo ripiegamento di ${esc(c.name)}">−</button>`
       :`<button class="minus" data-act="dayRemove" data-id="${c.id}" aria-label="Togli ${esc(c.name)} dalla giornata">×</button>`}
-    <button class="minus notebtn ${dn?'on':''}" data-act="noteOpen" data-id="${c.id}" aria-label="Nota della giornata per ${esc(c.name)}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></button>
     <button class="minus donebtn" data-act="doneOn" data-id="${c.id}" aria-label="Segna ${esc(c.name)} come finito"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button></div>`}).join('');
   const fin=allIds.filter(id=>doneSet.has(id)).map(clientById).filter(Boolean);
   const finHtml=fin.length?`<h2>Finiti oggi · ${fin.length}</h2><div class="card">${fin.map(c=>{const mine=day.filter(e=>e.clientId===c.id),due=balance(c.id).due;
     return `<div class="row finrow"><span class="grow"><b data-u>${esc(c.name)}</b><br><span class="muted small">${mine.length} ripiegamenti · ${eur(mine.reduce((a,e)=>a+e.price,0))}</span></span>
     ${due>0?`<span class="pill due">Deve ${eur(due)}</span>`:`<span class="pill ok">Pagato</span>`}
     <button class="btn ghost small" data-act="doneOff" data-id="${c.id}">Riapri</button></div>`}).join('')}</div>`:'';
-  const nc=view.noteFor&&clientById(view.noteFor);
-  const sheet=nc?`<div class="scrim" data-act="noteClose"></div><div class="sheet" role="dialog" aria-label="Nota della giornata">
-    <div class="sheet-h"><b>${esc(nc.name)}</b><span class="muted small">${fmtDay(view.day)}</span></div>
-    ${nc.note?`<div class="fixnote"><span class="k">Nota fissa</span><div data-u>${esc(nc.note)}</div></div>`:''}
-    <label class="f">Nota della giornata<textarea id="dayNoteBox" rows="3" placeholder="Es. consegnata alle 15, manca il pull-up cord…">${esc(dayNote(view.day,nc.id))}</textarea></label>
-    <div class="actions"><button class="btn primary" data-act="noteSave">Salva</button><button class="btn ghost" data-act="noteClose">Annulla</button>${dayNote(view.day,nc.id)?`<button class="btn ghost" data-act="noteClear" style="margin-left:auto;color:var(--danger)">Cancella nota</button>`:''}</div>
-  </div>`:'';
+
   return `${dayBar()}
   ${S.sample?`<div class="banner">Questi sono dati di esempio.<button data-act="clearSample">Cancella e inizia</button></div>`:''}
   ${backupDue()?`<div class="banner">${S.lastBackup?'Ultimo backup '+Math.floor((Date.now()-S.lastBackup)/864e5)+' giorni fa.':'Non hai ancora fatto un backup dei dati.'}<button data-act="shareBackup">Invia backup</button></div>`:''}
@@ -521,13 +511,13 @@ function renderConta(){
     <div class="results" id="results">${searchResults(view.pickQ||'')}</div>
   </div>`:`<button class="pickbtn" data-act="pickOpen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Aggiungi cliente alla giornata</button>`}
   ${tiles?`<div class="tiles">${tiles}</div>`
-   :fin.length?`<div class="empty">Tutti i clienti di oggi hanno finito.</div>`:`<div class="empty">Nessun cliente in questa giornata.<br>Tocca «Aggiungi cliente alla giornata» e scegli a chi stai piegando.</div>`}${finHtml}${sheet}`;
+   :fin.length?`<div class="empty">Tutti i clienti di oggi hanno finito.</div>`:`<div class="empty">Nessun cliente in questa giornata.<br>Tocca «Aggiungi cliente alla giornata» e scegli a chi stai piegando.</div>`}${finHtml}`;
 }
 function openResults(){const r=document.getElementById('results'),s=document.getElementById('search');if(r&&s){view.pickQ=s.value;r.innerHTML=searchResults(s.value)}}
 function addForm(){
   return `<div class="card"><form class="form" id="addForm">
     <div class="two"><label class="f">Nome cliente<input type="text" id="newName" required autocomplete="off"></label>
-    <label class="f">Prezzo €<input type="number" id="newPrice" step="0.5" min="0" value="${cfg().price}"></label></div>
+    <label class="f">Prezzo €<input type="text" inputmode="decimal" id="newPrice" step="0.5" min="0" value="${cfg().price}"></label></div>
     <div class="actions"><button class="btn primary" type="submit">Aggiungi</button><button class="btn ghost" type="button" data-act="addClose">Annulla</button></div>
   </form></div>`;
 }
@@ -575,7 +565,7 @@ function rankSection(){
     return `<button class="pc ${sel===r.id?'sel':''}" data-act="rankSel" data-id="${r.id}" aria-label="Dettagli di ${esc(r.name)}">
       <span class="av" style="border-color:var(--${med[i]})">${esc(r.name.trim().charAt(0).toUpperCase())}</span>
       <span class="nm">${esc(r.name)}</span><span class="eur">${eur(r.tot)}</span>
-      <span class="blk" style="height:${h[i]}px;background:var(--${med[i]})">${i+1}</span></button>`};
+      <span class="blk m-${med[i]}" style="height:${h[i]}px">${i+1}</span></button>`};
   const podium=`<div class="card"><div class="pod">${pc(1)}${pc(0)}${pc(2)}</div></div>`;
   const topDet=list.slice(0,3).findIndex(r=>r.id===sel);
   const rest=list.slice(3).map((r,j)=>{const i=j+3;
@@ -628,7 +618,7 @@ function renderRiep(){
     const items=[...list].sort((a,b)=>b.ts-a.ts).map(e=>{
       const c=clientById(e.clientId);const t=new Date(e.ts);
       return `<div class="row"><span class="num muted small">${pad(t.getHours())}:${pad(t.getMinutes())}</span><span class="grow">${esc(c?c.name:'Cliente eliminato')}</span>
-      <input type="number" class="price-in" id="p-${e.id}" data-price="${e.id}" step="0.5" min="0" value="${e.price}" aria-label="Prezzo">
+      <input type="text" inputmode="decimal" class="price-in" id="p-${e.id}" data-price="${e.id}" step="0.5" min="0" value="${e.price}" aria-label="Prezzo">
       <button class="minus" style="position:static" data-act="delEntry" data-id="${e.id}" aria-label="Elimina">×</button></div>`}).join('');
     const open=!!view.detailOpen;
     detail=`<button class="fold" data-act="toggleDetail" aria-expanded="${open}"><span class="grow"><span class="fold-t">Dettaglio giornata</span><br><span class="muted small">${list.length} ripiegamenti · orari e prezzi singoli</span></span><svg class="chev" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
@@ -646,7 +636,7 @@ function renderCli(){
       return `<div class="row" style="flex-wrap:wrap"><span class="grow">Eliminare <b>${esc(c.name)}</b>${n?` e i suoi ${n} ripiegamenti`:''}?</span>
       <div class="actions"><button class="btn danger" data-act="delCli" data-id="${c.id}">Elimina</button><button class="btn ghost" data-act="cancelDel">Annulla</button></div></div>`}
     return `<div class="crow"><div class="row" style="border-top:0"><input type="text" id="n-${c.id}" data-name="${c.id}" value="${esc(c.name)}" aria-label="Nome">
-      <input type="number" class="price-in" id="cp-${c.id}" data-cprice="${c.id}" step="0.5" min="0" value="${c.price}" aria-label="Prezzo standard">
+      <input type="text" inputmode="decimal" class="price-in" id="cp-${c.id}" data-cprice="${c.id}" step="0.5" min="0" value="${c.price}" aria-label="Prezzo standard">
       <button class="minus" style="position:static;flex:none" data-act="askDel" data-id="${c.id}" aria-label="Elimina cliente">×</button></div>
       <div style="padding:0 14px 12px"><textarea class="note-in" id="cn-${c.id}" data-cnote="${c.id}" rows="2" placeholder="Note fisse: vela, preferenze, accordi…">${esc(c.note||'')}</textarea></div></div>`}).join('');
   return `<h2>Clienti e prezzo standard</h2>
@@ -690,7 +680,7 @@ function renderSet(){
 
   <h2>Prezzi</h2>
   <div class="card"><div class="form">
-    <label class="f">Prezzo standard per i nuovi clienti (€)<input type="number" id="set-price" data-set="price" step="0.5" min="0" value="${c.price}" style="max-width:140px"></label>
+    <label class="f">Prezzo standard per i nuovi clienti (€)<input type="text" inputmode="decimal" id="set-price" data-set="price" step="0.5" min="0" value="${c.price}" style="max-width:140px"></label>
     ${view.confirmPrice?`<div class="banner" style="border-style:solid">Mettere ${eur(c.price)} a tutti i ${S.clients.length} clienti? I ripiegamenti già segnati non cambiano.
       <span class="actions"><button class="btn primary" data-act="priceAllDo">Conferma</button><button class="btn ghost" data-act="priceAllNo">Annulla</button></span></div>`
     :`<div class="actions"><button class="btn" data-act="priceAllAsk" ${S.clients.length?'':'disabled'}>Applica a tutti i clienti</button></div>`}
@@ -724,6 +714,12 @@ function renderSet(){
   <div class="actions"><button class="btn primary" data-act="importDo">Ripristina</button><button class="btn ghost" data-act="importClose">Annulla</button></div>
   <span class="muted small">Il ripristino sostituisce tutti i dati attuali.</span></div></div>`:''}
 
+  ${view.pendingImport?(()=>{const n=view.pendingImport,dt=n.saved?fmtDay(dayKey(new Date(n.saved))):'';return `<div class="card" id="importConfirm" style="border-color:var(--warn)"><div class="form">
+    <b>Ripristinare questo backup?</b>
+    <span class="small">${dt?`Backup del ${dt} · `:''}${n.clients.length} clienti · ${n.entries.length} ripiegamenti · ${n.payments.length} pagamenti</span>
+    <span class="muted small">I dati attuali verranno sostituiti. Ne tengo una copia, così puoi annullare il ripristino.</span>
+    <div class="actions"><button class="btn primary" data-act="importYes">Ripristina</button><button class="btn ghost" data-act="importNo">Annulla</button></div></div></div>`})():''}
+  ${(()=>{const p=prevCopy();return p&&p.data?`<div class="actions"><button class="btn ghost" data-act="undoImport">Annulla l'ultimo ripristino (dati del ${fmtDay(dayKey(new Date(p.at)))})</button></div>`:''})()}
   <h2>Dati</h2>
   ${view.confirmWipe?`<div class="card"><div class="form"><b style="color:var(--danger)">Cancellare tutti i clienti, ripiegamenti, pagamenti e note?</b>
     <span class="muted small">Non si può annullare. Le impostazioni restano. Fai prima un backup se vuoi conservarli.</span>
@@ -776,7 +772,7 @@ function tipsSection(){
   const opts=[...S.clients].sort((a,b)=>a.name.localeCompare(b.name,isEN()?'en':'it')).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
   const form=view.tipOpen?`<div class="form" style="border-top:1px solid var(--line)">
       <div class="two"><label class="f">Cliente<select id="tipClient"><option value="">Scegli…</option>${opts}</select></label>
-      <label class="f">Mancia €<input type="number" id="tipAmount" step="0.5" min="0"></label></div>
+      <label class="f">Mancia €<input type="text" inputmode="decimal" id="tipAmount" step="0.5" min="0"></label></div>
       <div class="seg">${cfg().methods.map(x=>`<button data-act="payMethod" data-m="${esc(x)}" aria-pressed="${view.payMethod===x}">${esc(tm(x))}</button>`).join('')}</div>
       <div class="actions"><button class="btn primary" data-act="tipDo">Registra mancia</button><button class="btn ghost" data-act="tipClose">Annulla</button></div></div>`:'';
   return `<h2>Mance</h2>
@@ -796,8 +792,8 @@ function renderPag(){
     const open=view.payFor===c.id;
     return `<div><div class="row"><span class="grow">${esc(c.name)}<br><span class="muted small">Lavoro ${eur(owed)} · Pagato ${eur(paid)}</span></span>${pill}</div>
     ${open?`<div class="paybox">
-      <div class="two"><label class="f">Importo ricevuto €<input type="number" id="payAmount" data-due="${due}" step="0.5" min="0" value="${due>0?due:''}"></label>
-      <label class="f">di cui mancia €<input type="number" id="payTip" step="0.5" min="0" value="0"></label></div>
+      <div class="two"><label class="f">Importo ricevuto €<input type="text" inputmode="decimal" id="payAmount" data-due="${due}" step="0.5" min="0" value="${due>0?due:''}"></label>
+      <label class="f">di cui mancia €<input type="text" inputmode="decimal" id="payTip" step="0.5" min="0" value="0"></label></div>
       <span class="muted small" id="payHint">Se ricevi più di ${eur(due)}, la differenza va nelle mance. Se era un anticipo, metti 0.</span>
       <div class="seg">${cfg().methods.map(m=>`<button data-act="payMethod" data-m="${m}" aria-pressed="${view.payMethod===m}">${esc(tm(m))}</button>`).join('')}</div>
       <div class="actions"><button class="btn primary" data-act="payDo" data-id="${c.id}">Registra pagamento</button><button class="btn ghost" data-act="payClose">Annulla</button></div>
@@ -864,13 +860,12 @@ document.addEventListener('click',ev=>{
     case 'delEntry':S.entries=S.entries.filter(e=>e.id!==id);save();render();break;
     case 'askDel':view.confirm=id;render();break;
     case 'cancelDel':view.confirm=null;render();break;
-    case 'delCli':S.clients=S.clients.filter(c=>c.id!==id);S.entries=S.entries.filter(e=>e.clientId!==id);S.payments=S.payments.filter(p=>p.clientId!==id);view.confirm=null;save();render();break;
+    case 'delCli':S.clients=S.clients.filter(c=>c.id!==id);S.entries=S.entries.filter(e=>e.clientId!==id);S.payments=S.payments.filter(p=>p.clientId!==id);
+      for(const m of [S.dayClients,S.dayDone])for(const d in m){m[d]=m[d].filter(x=>x!==id);if(!m[d].length)delete m[d]}
+      for(const d in S.dayNotes){delete S.dayNotes[d][id];if(!Object.keys(S.dayNotes[d]).length)delete S.dayNotes[d]}
+      view.confirm=null;save();render();break;
     case 'calPrev':case 'calNext':{const[y,m]=view.calMonth.split('-').map(Number);const d=new Date(y,m-1+(a==='calNext'?1:-1),1);view.calMonth=d.getFullYear()+'-'+pad(d.getMonth()+1);render();break}
     case 'monthPick':{const[y,m]=b.dataset.k.split('-').map(Number);const last=dayKey(new Date(y,m,0));view.day=last>today()?today():last;view.range='month';render();window.scrollTo({top:0,behavior:'smooth'});break}
-    case 'noteOpen':view.noteFor=id;render();{const t=document.getElementById('dayNoteBox');t&&t.focus()}break;
-    case 'noteClose':view.noteFor=null;render();break;
-    case 'noteSave':setDayNote(view.day,view.noteFor,document.getElementById('dayNoteBox').value.trim());view.noteFor=null;save();render();toast('Nota salvata');break;
-    case 'noteClear':setDayNote(view.day,view.noteFor,'');view.noteFor=null;save();render();break;
     case 'setLang':S.set.lang=b.dataset.v;document.documentElement.lang=S.set.lang;save();render();toast(S.set.lang==='en'?'Language: English':'Lingua: italiano');break;
     case 'setTheme':S.theme=b.dataset.v;save();applySkin();render();break;
     case 'setAccent':S.set.accent=b.dataset.v;save();applySkin();render();break;
@@ -902,15 +897,15 @@ document.addEventListener('click',ev=>{
     case 'payOpen':view.payFor=id;view.payMethod=cfg().methods.includes(view.payMethod)?view.payMethod:(cfg().methods.includes(cfg().defMethod)?cfg().defMethod:cfg().methods[0]);render();const pa=document.getElementById('payAmount');pa&&pa.focus();break;
     case 'payClose':view.payFor=null;render();break;
     case 'payMethod':view.payMethod=b.dataset.m;document.querySelectorAll('[data-act="payMethod"]').forEach(x=>x.setAttribute('aria-pressed',x===b));break;
-    case 'payDo':{const v=parseFloat(document.getElementById('payAmount').value);if(isNaN(v)||v<=0){toast('Inserisci un importo');break}
-      let tip=parseFloat(document.getElementById('payTip').value);tip=isNaN(tip)||tip<0?0:Math.min(tip,v);
+    case 'payDo':{const v=num(document.getElementById('payAmount').value);if(isNaN(v)||v<=0){toast('Inserisci un importo');break}
+      let tip=num(document.getElementById('payTip').value);tip=isNaN(tip)||tip<0?0:Math.min(tip,v);
       S.payments.push({id:uid(),clientId:id,day:today(),ts:Date.now(),amount:v,tip,method:view.payMethod||cfg().defMethod});
       let moved=false;if(balance(id).due<=0&&dayIds(today()).includes(id)){const l=S.dayDone[today()]||(S.dayDone[today()]=[]);if(!l.includes(id)){l.push(id);moved=true}}
       save();view.payFor=null;render();
       toast(moved?'Saldato: spostato tra i finiti di oggi':(tip?`Pagamento registrato, mancia ${eur(tip)}`:'Pagamento registrato'));break}
     case 'tipOpen':view.tipOpen=true;view.payMethod=cfg().methods.includes(cfg().defMethod)?cfg().defMethod:cfg().methods[0];render();break;
     case 'tipClose':view.tipOpen=false;render();break;
-    case 'tipDo':{const cid=document.getElementById('tipClient').value,v=parseFloat(document.getElementById('tipAmount').value);
+    case 'tipDo':{const cid=document.getElementById('tipClient').value,v=num(document.getElementById('tipAmount').value);
       if(!cid){toast('Scegli il cliente');break}if(isNaN(v)||v<=0){toast('Inserisci un importo');break}
       S.payments.push({id:uid(),clientId:cid,day:today(),ts:Date.now(),amount:v,tip:v,method:view.payMethod||cfg().defMethod});view.tipOpen=false;save();render();toast('Mancia registrata: '+eur(v));break}
     case 'delPay':S.payments=S.payments.filter(p=>p.id!==id);save();render();break;
@@ -921,13 +916,15 @@ document.addEventListener('click',ev=>{
     case 'exportData':copy(JSON.stringify({clients:S.clients,entries:S.entries,planned:S.planned,payments:S.payments,dayClients:S.dayClients,dayNotes:S.dayNotes,dayDone:S.dayDone,set:S.set,theme:S.theme}),'Backup copiato');break;
     case 'importOpen':view.importOpen=true;render();break;
     case 'importClose':view.importOpen=false;render();break;
-    case 'importDo':{try{const d=JSON.parse(document.getElementById('importBox').value);if(!Array.isArray(d.clients)||!Array.isArray(d.entries))throw 0;
-      S={clients:d.clients,entries:d.entries,planned:d.planned||{},payments:d.payments||[],dayClients:d.dayClients||{},dayNotes:d.dayNotes||{},dayDone:d.dayDone||{},set:Object.assign({},SET_DEFAULTS,d.set||S.set),theme:d.theme||S.theme};save();view.importOpen=false;render();toast('Backup ripristinato')}catch(e){toast('Testo non valido: incolla il backup completo')}break}
+    case 'importDo':{try{askImport(JSON.parse(document.getElementById('importBox').value))}catch(e){toast('Testo non valido: incolla il backup completo')}break}
+    case 'importYes':applyImport();break;
+    case 'importNo':view.pendingImport=null;render();break;
+    case 'undoImport':undoImport();break;
   }
 });
 document.addEventListener('input',ev=>{if(ev.target.id==='search')openResults();
-  if(ev.target.id==='payAmount'){const v=parseFloat(ev.target.value),due=parseFloat(ev.target.dataset.due)||0,t=document.getElementById('payTip');
-    if(t&&!isNaN(v))t.value=Math.max(0,Math.round((v-Math.max(due,0))*100)/100)}});
+  if(ev.target.id==='payAmount'){const v=num(ev.target.value),due=num(ev.target.dataset.due)||0,t=document.getElementById('payTip');
+    if(t&&!isNaN(v)){const x=Math.max(0,Math.round((v-Math.max(due,0))*100)/100);t.value=isEN()?String(x):String(x).replace('.',',')}}});
 document.addEventListener('keydown',ev=>{if(ev.target.id==='search'&&ev.key==='Enter'){ev.target.blur()}});
 document.addEventListener('submit',ev=>{
   if(ev.target.id==='methodForm'){ev.preventDefault();const v=document.getElementById('newMethod').value.trim();
@@ -935,23 +932,35 @@ document.addEventListener('submit',ev=>{
     S.set.methods=[...S.set.methods,v];save();render();toast(v+' aggiunto');return}
   if(ev.target.id!=='addForm')return;ev.preventDefault();
   const name=document.getElementById('newName').value.trim();if(!name)return;
-  const p=parseFloat(document.getElementById('newPrice').value);
+  const p=num(document.getElementById('newPrice').value);
   if(S.sample){S={clients:[],entries:[],planned:{},payments:[],dayClients:{},dayNotes:{},dayDone:{},set:S.set,theme:S.theme}}
   S.clients.push({id:uid(),name,price:isNaN(p)?cfg().price:p});save();view.adding=false;render();toast(name+' aggiunto');
 });
 document.addEventListener('change',ev=>{
-  const t=ev.target,v=parseFloat(t.value);
-  if(t.dataset.price){const e=S.entries.find(x=>x.id===t.dataset.price);if(e&&!isNaN(v)){e.price=v;save();render()}}
-  if(t.dataset.cprice){const c=clientById(t.dataset.cprice);if(c&&!isNaN(v)){c.price=v;save();toast('Prezzo aggiornato')}}
-  if(t.id==='importFile'&&t.files&&t.files[0]){const r=new FileReader();r.onload=()=>{try{applyImport(JSON.parse(r.result))}catch(e){toast('File non valido: scegli un backup di Packing')}};r.readAsText(t.files[0]);return}
+  const t=ev.target,v=num(t.value);
+  if(t.dataset.price){const e=S.entries.find(x=>x.id===t.dataset.price);if(e&&!isNaN(v)&&v>=0){e.price=v;save();render()}}
+  if(t.dataset.cprice){const c=clientById(t.dataset.cprice);if(c&&!isNaN(v)&&v>=0){c.price=v;save();toast('Prezzo aggiornato')}}
+  if(t.id==='importFile'&&t.files&&t.files[0]){const r=new FileReader();r.onload=()=>{try{askImport(JSON.parse(r.result))}catch(e){toast('File non valido: scegli un backup di Packing')}t.value=''};r.readAsText(t.files[0]);return}
   if(t.id==='planToggle'){if(t.checked)S.planned[view.calSel]=S.planned[view.calSel]||'';else delete S.planned[view.calSel];save();render();return}
   if(t.id==='planNote'){S.planned[view.calSel]=t.value.trim();save();render();return}
   if(t.dataset.set==='name'){S.set.name=t.value.trim();save();toast('Nome salvato');return}
-  if(t.dataset.set==='price'){const v=parseFloat(t.value);if(!isNaN(v)&&v>=0){S.set.price=v;save();render();toast('Prezzo standard: '+eur(v))}return}
+  if(t.dataset.set==='price'){const v=num(t.value);if(!isNaN(v)&&v>=0){S.set.price=v;save();render();toast('Prezzo standard: '+eur(v))}return}
   if(t.dataset.toggle){S.set[t.dataset.toggle]=t.checked;save();return}
   if(t.dataset.cnote){const c=clientById(t.dataset.cnote);if(c){c.note=t.value.trim();save();toast('Nota salvata')}return}
   if(t.dataset.name){const c=clientById(t.dataset.name);const n=t.value.trim();if(c&&n){c.name=n;save()}}
 });
+let lastToday=today();
+function checkDay(){const t=today();if(t===lastToday)return;
+  if(view.day===lastToday)view.day=t;if(view.calSel===lastToday)view.calSel=t;if(view.calMonth===lastToday.slice(0,7))view.calMonth=t.slice(0,7);
+  lastToday=t;render()}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkDay()});
+window.addEventListener('focus',checkDay);setInterval(checkDay,60000);
+// new version ready (service worker found an update): offer a reload
+try{if(navigator.serviceWorker){
+  navigator.serviceWorker.addEventListener('message',e=>{const d=e.data||{};if(d.t==='packing-updated'&&d.v&&d.v!==APP_VERSION){const b=document.getElementById('updBar');if(b)b.hidden=false}});
+  navigator.serviceWorker.ready.then(r=>{const w=navigator.serviceWorker.controller||r.active;w&&w.postMessage('packing-check')}).catch(()=>{});
+}}catch(e){}
+document.addEventListener('click',e=>{if(e.target.closest('#updBtn'))location.reload()});
 document.documentElement.lang=cfg().lang||'it';
 applySkin();
 render();
