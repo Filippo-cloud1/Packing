@@ -30,13 +30,13 @@
   :root:not([data-skin="dark"]){
     --bg:#edf3f8; --panel:#ffffff; --panel-2:#e2ecf5; --line:#cddbe8;
     --fg:#0c2136; --muted:#567089; --accent:#0a8ec0; --accent-ink:#ffffff; --accent-soft:rgba(10,142,192,.12);
-    --warn:#d4601c; --ok:#178a55; --danger:#c93636; --bar:#ffffff; --tip:#9a6a00; color-scheme:light;
+    --warn:#d4601c; --ok:#178a55; --danger:#c93636; --bar:#ffffff; color-scheme:light;
   }
 }
 :root[data-skin="light"]{
   --bg:#edf3f8; --panel:#ffffff; --panel-2:#e2ecf5; --line:#cddbe8;
   --fg:#0c2136; --muted:#567089; --accent:#0a8ec0; --accent-ink:#ffffff; --accent-soft:rgba(10,142,192,.12);
-  --warn:#d4601c; --ok:#178a55; --danger:#c93636; --bar:#ffffff; --tip:#9a6a00; color-scheme:light;
+  --warn:#d4601c; --ok:#178a55; --danger:#c93636; --bar:#ffffff; color-scheme:light;
 }
 
 /* brand header */
@@ -242,6 +242,16 @@ a.btn{text-decoration:none;display:inline-block;color:var(--accent)}
 .tile .tl .dnote{font-size:15px!important;line-height:1.3!important;font-weight:600;white-space:pre-line}
 .fixnote{background:var(--panel-2);border-radius:12px;padding:10px 12px;font-size:16px;line-height:1.35;white-space:pre-wrap}
 .fixnote .k{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.tile{min-height:120px!important}
+.tile-wrap>.minus{width:34px!important;height:34px!important;top:10px!important}
+.tile-wrap>.minus.notebtn{top:50%!important;bottom:auto!important;transform:translateY(-50%)}
+.tile-wrap>.minus.donebtn{top:auto!important;bottom:10px!important;color:var(--ok)}
+.finrow{gap:10px}.finrow b{font-weight:600}
+/* podium: sober metals, dark blocks with metal stripe */
+:root{--gold:#c9a85a;--silver:#a3afbb;--bronze:#b5805d;--tip:var(--ok)}
+.pc .blk{background:var(--panel-2)!important;border-top:5px solid;color:var(--fg)!important}
+.pod .pc:nth-child(1) .blk{border-color:var(--silver)}.pod .pc:nth-child(2) .blk{border-color:var(--gold)}.pod .pc:nth-child(3) .blk{border-color:var(--bronze)}
+.rk.r1,.rk.r2,.rk.r3{color:#1d2530!important}
 @media (prefers-reduced-motion:reduce){.tile{transition:none}.tile:active{transform:none}.tile .fly,.tile .count.pop{animation:none}.tile .fly{display:none}}
 </style>
 </head>
@@ -286,7 +296,7 @@ const EN={
 'Cancellare tutti i clienti, ripiegamenti, pagamenti e note?':'Delete all clients, packs, payments and notes?','Chiaro':'Light','Classifica clienti':'Client ranking','Cliente':'Client','Clienti':'Clients',
 'Clienti e prezzo standard':'Clients and standard price','Clienti in debito':'Clients owing','Colore principale':'Accent color','Compare nel riepilogo che copi e mandi ai clienti.':'Shown in the summary you copy and send to clients.',
 'Conferma':'Confirm','Conta':'Count','Contanti':'Cash','Contatore':'Counter','Copia come testo':'Copy as text','Copia di sicurezza':'Backup','Copia riepilogo':'Copy summary',
-'Da incassare':'To collect','Da pagare':'To pay','Dati':'Data','Dati cancellati':'Data deleted','Dettaglio giornata':'Day details','Elimina':'Delete','Eliminare':'Delete',
+'Da incassare':'To collect','Guadagno':'Earnings','Da pagare':'To pay','Dati':'Data','Dati cancellati':'Data deleted','Dettaglio giornata':'Day details','Elimina':'Delete','Eliminare':'Delete',
 'Esporta tutti (.ics)':'Export all (.ics)','Fatto':'Done','Giornata':'Day','Giornata di oggi':'Today','Giorni':'Days','Giorno di lavoro segnato':'Working day','Giorno di lavoro':'Working day',
 'Guadagni per mese':'Earnings by month',
 'I dati restano solo su questo telefono. Manda il backup a te stesso via email o salvalo su Drive: se cambi o perdi il telefono, lo ripristini da qui (il ripristino sostituisce i dati attuali).':'Your data stays only on this phone. Email the backup to yourself or save it to Drive: if you change or lose your phone, restore it from here (restoring replaces the current data).',
@@ -311,7 +321,7 @@ const EN={
 'Tocca «Aggiungi cliente alla giornata» e scegli a chi stai piegando.':'Tap “Add client to the day” and choose who you’re packing for.',
 'Torna a oggi':'Back to today','Totali per cliente':'Totals per client','Tutti i clienti sono già nella giornata.':'All clients are already on this day.','Tutto':'All','Ultimi pagamenti':'Recent payments',
 'Una breve vibrazione a ogni +1.':'A short vibration on every +1.','Vibrazione al tocco':'Vibrate on tap','di cui mancia €':'of which tip €','di cui mance':'of which tips','mancia':'tip',
-'Mance ricevute da questo cliente:':'Tips from this client:','Nota fissa':'Permanent note','Lingua':'Language','Scrivi un nome per creare il primo cliente.':'Type a name to create the first client.',
+'Mance ricevute da questo cliente:':'Tips from this client:','Nota fissa':'Permanent note','Riapri':'Reopen','Pagato':'Paid','Tutti i clienti di oggi hanno finito.':'All of today\u2019s clients are done.','Saldato: spostato tra i finiti di oggi':'Settled: moved to today\u2019s finished','Lingua':'Language','Scrivi un nome per creare il primo cliente.':'Type a name to create the first client.',
 'Non hai ancora fatto un backup dei dati.':'You haven’t backed up your data yet.','Nessun cliente ancora.':'No clients yet.',
 // aria / placeholders
 'Arancione':'Orange','Azzurro':'Light blue','Giallo':'Yellow','Rosa':'Pink','Verde':'Green','Viola':'Purple','Cambia aspetto chiaro o scuro':'Switch light or dark look','Chiudi dettaglio':'Close details',
@@ -329,7 +339,7 @@ const EN={
 };
 const ENP=[
 [/^(\d+) pagamento · (.+) incassati in totale$/,'$1 payment · $2 received in total'],[/^(\d+) pagamenti · (.+) incassati in totale$/,'$1 payments · $2 received in total'],
-[/^(\d+) ripiegamenti · orari e prezzi singoli$/,'$1 packs · times and single prices'],[/^(\d+) ripiegamenti segnati$/,'$1 packs recorded'],[/^(\d+) ripiegamenti$/,'$1 packs'],
+[/^(\d+) ripiegamenti · orari e prezzi singoli$/,'$1 packs · times and single prices'],[/^(\d+) ripiegamenti segnati$/,'$1 packs recorded'],[/^(\d+) ripiegamenti · (.+)$/,'$1 packs · $2'],[/^(\d+) ripiegamenti$/,'$1 packs'],
 [/^(\d+) giorni$/,'$1 days'],[/^in (\d+) giorni$/,'in $1 days'],[/^Deve (.+)$/,'Owes $1'],[/^Anticipo (.+)$/,'Advance $1'],[/^In pari$/,'Settled'],[/^Lavoro (.+) · Pagato (.+)$/,'Work $1 · Paid $2'],
 [/^Packing · versione (.+)$/,'Packing · version $1'],[/^Mettere (.+) a tutti i (\d+) clienti\? I ripiegamenti già segnati non cambiano\.$/,'Set $1 for all $2 clients? Packs already recorded won’t change.'],
 [/^Nota fissa: ([\s\S]*)$/,'Permanent note: $1'],[/^Questo mese · (\d+) ripiegamenti$/,'This month · $1 packs'],[/^Mese scorso · (\d+) ripiegamenti$/,'Last month · $1 packs'],
@@ -343,7 +353,7 @@ const ENP=[
 [/^Aggiungi un ripiegamento per (.+)$/,'Add a pack for $1'],[/^Togli l'ultimo ripiegamento di (.+)$/,'Remove the last pack of $1'],[/^Togli (.+) dalla giornata$/,'Remove $1 from the day'],
 [/^Dettagli di (.+)$/,'Details of $1'],[/^Nota della giornata per (.+)$/,'Day note for $1'],[/^Togli (.+)$/,'Remove $1'],[/^Elimina (.+)$/,'Delete $1'],
 // toasts
-[/^(.+) aggiunto$/,'$1 added'],[/^(.+) tolto$/,'$1 removed'],[/^(.+) c'è già$/,'$1 already exists'],[/^Prezzo standard: (.+)$/,'Standard price: $1'],[/^Mancia registrata: (.+)$/,'Tip recorded: $1'],
+[/^Finiti oggi · (\d+)$/,'Finished today · $1'],[/^(.+) spostato tra i finiti$/,'$1 moved to finished'],[/^(.+) riaperto$/,'$1 reopened'],[/^Segna (.+) come finito$/,'Mark $1 as finished'],[/^(.+) aggiunto$/,'$1 added'],[/^(.+) tolto$/,'$1 removed'],[/^(.+) c'è già$/,'$1 already exists'],[/^Prezzo standard: (.+)$/,'Standard price: $1'],[/^Mancia registrata: (.+)$/,'Tip recorded: $1'],
 [/^Pagamento registrato, mancia (.+)$/,'Payment recorded, tip $1']
 ];
 function tr(s){if(!isEN()||!s)return s;const k=s.replace(/\s+/g,' ').trim();const put=x=>s.includes(k)?s.replace(k,x):x;
@@ -377,6 +387,7 @@ let S=load()||sample();
 S.planned=S.planned||{};
 S.payments=S.payments||[];
 S.dayNotes=S.dayNotes||{};
+S.dayDone=S.dayDone||{};
 if(!S.dayClients){S.dayClients={};S.entries.forEach(e=>{const l=S.dayClients[e.day]||(S.dayClients[e.day]=[]);if(!l.includes(e.clientId))l.push(e.clientId)})}
 const METHODS=['Contanti','Bonifico','PayPal','Satispay','Altro'];
 const SET_DEFAULTS={lang:((navigator.language||'it').toLowerCase().startsWith('it')?'it':'en'),name:'',price:DEFAULT_PRICE,methods:METHODS,defMethod:'Contanti',accent:'azzurro',vibrate:true,guard:true,backupDays:7};
@@ -389,7 +400,7 @@ const ACCENTS={
   viola:{label:'Viola',d:'#ac8dff',l:'#6a45d6',inkD:'#1c0f3d',inkL:'#ffffff'},
   rosa:{label:'Rosa',d:'#ff7ab6',l:'#c2347a',inkD:'#3a0a20',inkL:'#ffffff'},
   giallo:{label:'Giallo',d:'#ffcf3f',l:'#a87700',inkD:'#2b2000',inkL:'#ffffff'}};
-const APP_VERSION='1.8.1';
+const APP_VERSION='1.9';
 let view={tab:'conta',day:today(),range:'day',editing:null,adding:false,confirm:null,importOpen:false,calMonth:today().slice(0,7),calSel:today()};
 
 const clientById=id=>S.clients.find(c=>c.id===id);
@@ -417,7 +428,7 @@ function dayBar(){
     <div class="daylabel"><div class="eyebrow">${isToday?'Giornata di oggi':'Giornata'}</div><div class="date">${fmtDay(view.day)}</div></div>
     <button class="navbtn" data-act="next" aria-label="Giorno successivo" ${isToday?'disabled style="opacity:.35"':''}>›</button>
   </div>
-  <div class="totals"><div><div class="k">Ripiegamenti</div><div class="v">${sum.n}</div></div><div><div class="k">Da incassare</div><div class="v eur">${eur(sum.tot)}</div></div></div>
+  <div class="totals"><div><div class="k">Ripiegamenti</div><div class="v">${sum.n}</div></div><div><div class="k">Guadagno</div><div class="v eur">${eur(sum.tot)}</div></div></div>
   ${!isToday?`<div class="banner">Stai guardando un giorno passato.<button data-act="today">Torna a oggi</button></div>`:''}`;
 }
 
@@ -442,7 +453,7 @@ function applySkin(){
 }
 try{matchMedia('(prefers-color-scheme: light)').addEventListener('change',applySkin)}catch(e){}
 function backupDue(){const d=cfg().backupDays;return d>0&&!S.sample&&S.entries.length>0&&(!S.lastBackup||Date.now()-S.lastBackup>d*864e5)}
-function backupJSON(){return JSON.stringify({app:'Packing',saved:new Date().toISOString(),clients:S.clients,entries:S.entries,planned:S.planned,payments:S.payments,dayClients:S.dayClients,dayNotes:S.dayNotes,set:S.set,theme:S.theme},null,1)}
+function backupJSON(){return JSON.stringify({app:'Packing',saved:new Date().toISOString(),clients:S.clients,entries:S.entries,planned:S.planned,payments:S.payments,dayClients:S.dayClients,dayNotes:S.dayNotes,dayDone:S.dayDone,set:S.set,theme:S.theme},null,1)}
 function backupName(){return 'packing-backup-'+today()+'.json'}
 function downloadBackup(){
   try{const url=URL.createObjectURL(new Blob([backupJSON()],{type:'application/json'}));const l=document.createElement('a');l.href=url;l.download=backupName();document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);
@@ -457,7 +468,7 @@ async function shareBackup(){
 }
 function applyImport(d){
   if(!d||!Array.isArray(d.clients)||!Array.isArray(d.entries))throw new Error('bad');
-  S={clients:d.clients,entries:d.entries,planned:d.planned||{},payments:d.payments||[],dayClients:d.dayClients||{},dayNotes:d.dayNotes||{},set:Object.assign({},SET_DEFAULTS,d.set||S.set),theme:d.theme||S.theme,lastBackup:Date.now()};
+  S={clients:d.clients,entries:d.entries,planned:d.planned||{},payments:d.payments||[],dayClients:d.dayClients||{},dayNotes:d.dayNotes||{},dayDone:d.dayDone||{},set:Object.assign({},SET_DEFAULTS,d.set||S.set),theme:d.theme||S.theme,lastBackup:Date.now()};
   save();view.importOpen=false;render();toast('Backup ripristinato');
 }
 function dayNote(d,cid){return ((S.dayNotes||{})[d]||{})[cid]||''}
@@ -477,7 +488,8 @@ function searchResults(raw){
 }
 function renderConta(){
   const day=entriesOn(view.day);
-  const tiles=dayIds(view.day).map(clientById).map(c=>{
+  const doneSet=new Set(S.dayDone[view.day]||[]),allIds=dayIds(view.day);
+  const tiles=allIds.filter(id=>!doneSet.has(id)).map(clientById).map(c=>{
     const mine=day.filter(e=>e.clientId===c.id),n=mine.length,dn=dayNote(view.day,c.id);
     return `<div class="tile-wrap"><button class="tile ${n?'':'zero'}" data-act="plus" data-id="${c.id}" id="tile-${c.id}" aria-label="Aggiungi un ripiegamento per ${esc(c.name)}">
       <span class="tl"><span class="name" data-u>${esc(c.name)}</span>
@@ -486,7 +498,13 @@ function renderConta(){
       <span class="tc"><span class="count">${n}</span><span class="sub">${eur(mine.reduce((s,e)=>s+e.price,0))}</span></span><span class="plus" aria-hidden="true">+</span>
     </button>${n?`<button class="minus" data-act="minus" data-id="${c.id}" aria-label="Togli l'ultimo ripiegamento di ${esc(c.name)}">−</button>`
       :`<button class="minus" data-act="dayRemove" data-id="${c.id}" aria-label="Togli ${esc(c.name)} dalla giornata">×</button>`}
-    <button class="minus notebtn ${dn?'on':''}" data-act="noteOpen" data-id="${c.id}" aria-label="Nota della giornata per ${esc(c.name)}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></button></div>`}).join('');
+    <button class="minus notebtn ${dn?'on':''}" data-act="noteOpen" data-id="${c.id}" aria-label="Nota della giornata per ${esc(c.name)}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></button>
+    <button class="minus donebtn" data-act="doneOn" data-id="${c.id}" aria-label="Segna ${esc(c.name)} come finito"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button></div>`}).join('');
+  const fin=allIds.filter(id=>doneSet.has(id)).map(clientById).filter(Boolean);
+  const finHtml=fin.length?`<h2>Finiti oggi · ${fin.length}</h2><div class="card">${fin.map(c=>{const mine=day.filter(e=>e.clientId===c.id),due=balance(c.id).due;
+    return `<div class="row finrow"><span class="grow"><b data-u>${esc(c.name)}</b><br><span class="muted small">${mine.length} ripiegamenti · ${eur(mine.reduce((a,e)=>a+e.price,0))}</span></span>
+    ${due>0?`<span class="pill due">Deve ${eur(due)}</span>`:`<span class="pill ok">Pagato</span>`}
+    <button class="btn ghost small" data-act="doneOff" data-id="${c.id}">Riapri</button></div>`}).join('')}</div>`:'';
   const nc=view.noteFor&&clientById(view.noteFor);
   const sheet=nc?`<div class="scrim" data-act="noteClose"></div><div class="sheet" role="dialog" aria-label="Nota della giornata">
     <div class="sheet-h"><b>${esc(nc.name)}</b><span class="muted small">${fmtDay(view.day)}</span></div>
@@ -503,7 +521,7 @@ function renderConta(){
     <div class="results" id="results">${searchResults(view.pickQ||'')}</div>
   </div>`:`<button class="pickbtn" data-act="pickOpen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Aggiungi cliente alla giornata</button>`}
   ${tiles?`<div class="tiles">${tiles}</div>`
-   :`<div class="empty">Nessun cliente in questa giornata.<br>Tocca «Aggiungi cliente alla giornata» e scegli a chi stai piegando.</div>`}${sheet}`;
+   :fin.length?`<div class="empty">Tutti i clienti di oggi hanno finito.</div>`:`<div class="empty">Nessun cliente in questa giornata.<br>Tocca «Aggiungi cliente alla giornata» e scegli a chi stai piegando.</div>`}${finHtml}${sheet}`;
 }
 function openResults(){const r=document.getElementById('results'),s=document.getElementById('search');if(r&&s){view.pickQ=s.value;r.innerHTML=searchResults(s.value)}}
 function addForm(){
@@ -838,7 +856,7 @@ document.addEventListener('click',ev=>{
       if(cfg().vibrate){try{navigator.vibrate&&navigator.vibrate(15)}catch(e){}}break}
     case 'minus':{const l=S.entries.filter(e=>e.clientId===id&&e.day===view.day).sort((a,b)=>b.ts-a.ts)[0];
       if(l){S.entries=S.entries.filter(e=>e!==l);save();render();toast('Tolto 1 ripiegamento')}break}
-    case 'clearSample':S={clients:[],entries:[],planned:{},payments:[],dayClients:{},dayNotes:{},set:S.set,theme:S.theme};save();view.adding=true;render();break;
+    case 'clearSample':S={clients:[],entries:[],planned:{},payments:[],dayClients:{},dayNotes:{},dayDone:{},set:S.set,theme:S.theme};save();view.adding=true;render();break;
     case 'addOpen':view.adding=true;render();break;
     case 'addClose':view.adding=false;render();break;
     case 'range':view.range=b.dataset.r;render();break;
@@ -865,27 +883,31 @@ document.addEventListener('click',ev=>{
     case 'priceAllDo':S.clients.forEach(c=>c.price=S.set.price);view.confirmPrice=false;save();render();toast('Prezzo aggiornato per tutti');break;
     case 'wipeAsk':view.confirmWipe=true;render();break;
     case 'wipeNo':view.confirmWipe=false;render();break;
-    case 'wipeDo':S={clients:[],entries:[],planned:{},payments:[],dayClients:{},dayNotes:{},set:S.set,theme:S.theme};view.confirmWipe=false;save();render();toast('Dati cancellati');break;
+    case 'wipeDo':S={clients:[],entries:[],planned:{},payments:[],dayClients:{},dayNotes:{},dayDone:{},set:S.set,theme:S.theme};view.confirmWipe=false;save();render();toast('Dati cancellati');break;
     case 'togglePayHist':view.payHistOpen=!view.payHistOpen;render();break;
     case 'toggleDetail':view.detailOpen=!view.detailOpen;render();break;
     case 'rankKind':view.rankKind=b.dataset.v;view.rankSel=null;render();break;
     case 'rankSel':{view.rankSel=view.rankSel===id?null:id;render();if(view.rankSel){const el=document.getElementById('rdet-'+id);el&&el.scrollIntoView({behavior:'smooth',block:'nearest'})}break}
     case 'shareBackup':shareBackup();break;
     case 'saveBackup':downloadBackup();break;
+    case 'doneOn':{const l=S.dayDone[view.day]||(S.dayDone[view.day]=[]);if(!l.includes(id))l.push(id);save();const c=clientById(id);render();toast((c?c.name:'')+' spostato tra i finiti');break}
+    case 'doneOff':{S.dayDone[view.day]=(S.dayDone[view.day]||[]).filter(x=>x!==id);save();const c=clientById(id);render();toast((c?c.name:'')+' riaperto');break}
     case 'pickOpen':view.pickOpen=true;view.pickQ='';render();break;
     case 'pickClose':view.pickOpen=false;view.pickQ='';render();break;
     case 'dayAdd':{const l=S.dayClients[view.day]||(S.dayClients[view.day]=[]);if(!l.includes(id))l.push(id);save();const c=clientById(id);render();toast((c?c.name:'Cliente')+' aggiunto');break}
-    case 'dayRemove':{S.dayClients[view.day]=(S.dayClients[view.day]||[]).filter(x=>x!==id);save();render();break}
+    case 'dayRemove':{S.dayClients[view.day]=(S.dayClients[view.day]||[]).filter(x=>x!==id);S.dayDone[view.day]=(S.dayDone[view.day]||[]).filter(x=>x!==id);save();render();break}
     case 'createFromSearch':{const name=(document.getElementById('search').value||'').trim();if(!name)break;view.pickQ='';
-      if(S.sample)S={clients:[],entries:[],planned:S.planned,payments:[],dayClients:{},dayNotes:{},set:S.set,theme:S.theme};
+      if(S.sample)S={clients:[],entries:[],planned:S.planned,payments:[],dayClients:{},dayNotes:{},dayDone:{},set:S.set,theme:S.theme};
       const c={id:uid(),name,price:cfg().price};S.clients.push(c);(S.dayClients[view.day]||(S.dayClients[view.day]=[])).push(c.id);save();render();toast(name+' aggiunto');break}
     case 'payOpen':view.payFor=id;view.payMethod=cfg().methods.includes(view.payMethod)?view.payMethod:(cfg().methods.includes(cfg().defMethod)?cfg().defMethod:cfg().methods[0]);render();const pa=document.getElementById('payAmount');pa&&pa.focus();break;
     case 'payClose':view.payFor=null;render();break;
     case 'payMethod':view.payMethod=b.dataset.m;document.querySelectorAll('[data-act="payMethod"]').forEach(x=>x.setAttribute('aria-pressed',x===b));break;
     case 'payDo':{const v=parseFloat(document.getElementById('payAmount').value);if(isNaN(v)||v<=0){toast('Inserisci un importo');break}
       let tip=parseFloat(document.getElementById('payTip').value);tip=isNaN(tip)||tip<0?0:Math.min(tip,v);
-      S.payments.push({id:uid(),clientId:id,day:today(),ts:Date.now(),amount:v,tip,method:view.payMethod||cfg().defMethod});save();view.payFor=null;render();
-      toast(tip?`Pagamento registrato, mancia ${eur(tip)}`:'Pagamento registrato');break}
+      S.payments.push({id:uid(),clientId:id,day:today(),ts:Date.now(),amount:v,tip,method:view.payMethod||cfg().defMethod});
+      let moved=false;if(balance(id).due<=0&&dayIds(today()).includes(id)){const l=S.dayDone[today()]||(S.dayDone[today()]=[]);if(!l.includes(id)){l.push(id);moved=true}}
+      save();view.payFor=null;render();
+      toast(moved?'Saldato: spostato tra i finiti di oggi':(tip?`Pagamento registrato, mancia ${eur(tip)}`:'Pagamento registrato'));break}
     case 'tipOpen':view.tipOpen=true;view.payMethod=cfg().methods.includes(cfg().defMethod)?cfg().defMethod:cfg().methods[0];render();break;
     case 'tipClose':view.tipOpen=false;render();break;
     case 'tipDo':{const cid=document.getElementById('tipClient').value,v=parseFloat(document.getElementById('tipAmount').value);
@@ -896,11 +918,11 @@ document.addEventListener('click',ev=>{
     case 'calGo':view.day=view.calSel;view.tab='conta';render();break;
     case 'icsAll':{const keys=Object.keys(S.planned).filter(x=>x>=today()).sort();
       try{const url=URL.createObjectURL(new Blob([icsText(keys)],{type:'text/calendar'}));const l=document.createElement('a');l.href=url;l.download='packing-giorni.ics';document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);toast('File calendario creato')}catch(e){toast('Esportazione non disponibile qui')}break}
-    case 'exportData':copy(JSON.stringify({clients:S.clients,entries:S.entries,planned:S.planned,payments:S.payments,dayClients:S.dayClients,dayNotes:S.dayNotes,set:S.set,theme:S.theme}),'Backup copiato');break;
+    case 'exportData':copy(JSON.stringify({clients:S.clients,entries:S.entries,planned:S.planned,payments:S.payments,dayClients:S.dayClients,dayNotes:S.dayNotes,dayDone:S.dayDone,set:S.set,theme:S.theme}),'Backup copiato');break;
     case 'importOpen':view.importOpen=true;render();break;
     case 'importClose':view.importOpen=false;render();break;
     case 'importDo':{try{const d=JSON.parse(document.getElementById('importBox').value);if(!Array.isArray(d.clients)||!Array.isArray(d.entries))throw 0;
-      S={clients:d.clients,entries:d.entries,planned:d.planned||{},payments:d.payments||[],dayClients:d.dayClients||{},dayNotes:d.dayNotes||{},set:Object.assign({},SET_DEFAULTS,d.set||S.set),theme:d.theme||S.theme};save();view.importOpen=false;render();toast('Backup ripristinato')}catch(e){toast('Testo non valido: incolla il backup completo')}break}
+      S={clients:d.clients,entries:d.entries,planned:d.planned||{},payments:d.payments||[],dayClients:d.dayClients||{},dayNotes:d.dayNotes||{},dayDone:d.dayDone||{},set:Object.assign({},SET_DEFAULTS,d.set||S.set),theme:d.theme||S.theme};save();view.importOpen=false;render();toast('Backup ripristinato')}catch(e){toast('Testo non valido: incolla il backup completo')}break}
   }
 });
 document.addEventListener('input',ev=>{if(ev.target.id==='search')openResults();
@@ -914,7 +936,7 @@ document.addEventListener('submit',ev=>{
   if(ev.target.id!=='addForm')return;ev.preventDefault();
   const name=document.getElementById('newName').value.trim();if(!name)return;
   const p=parseFloat(document.getElementById('newPrice').value);
-  if(S.sample){S={clients:[],entries:[],planned:{},payments:[],dayClients:{},dayNotes:{},set:S.set,theme:S.theme}}
+  if(S.sample){S={clients:[],entries:[],planned:{},payments:[],dayClients:{},dayNotes:{},dayDone:{},set:S.set,theme:S.theme}}
   S.clients.push({id:uid(),name,price:isNaN(p)?cfg().price:p});save();view.adding=false;render();toast(name+' aggiunto');
 });
 document.addEventListener('change',ev=>{
