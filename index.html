@@ -61,10 +61,10 @@ button{cursor:pointer}
 .daylabel .date{font-family:var(--display);font-weight:600;font-size:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .daylabel input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
 
-.totals{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
-.totals div{background:var(--panel);padding:12px 16px}
+.totals{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.totals>div{background:var(--panel);padding:12px 16px;min-width:0}
 .totals .k{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.totals .v{font-family:var(--display);font-weight:700;font-size:40px;line-height:1.05;font-variant-numeric:tabular-nums}
+.totals .v{font-family:var(--display);font-weight:700;font-size:40px;line-height:1.05;font-variant-numeric:tabular-nums;white-space:nowrap}
 .totals .v.eur{color:var(--accent)}
 
 .banner{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px dashed var(--accent);border-radius:12px;padding:10px 14px;color:var(--muted);font-size:14px}
@@ -96,10 +96,6 @@ button{cursor:pointer}
 .clip1{-webkit-line-clamp:1}.clip3{-webkit-line-clamp:3}
 .note-in{min-height:0;font-family:var(--body);font-size:14px}
 .crow{border-top:1px solid var(--line)}.crow:first-child{border-top:0}
-.scrim{position:fixed;inset:0;background:rgba(3,10,20,.55);z-index:6}
-.sheet{position:fixed;left:0;right:0;bottom:0;z-index:7;max-width:560px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-bottom:0;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px;box-shadow:0 -10px 40px rgba(0,0,0,.35)}
-.sheet-h{display:flex;flex-direction:column;gap:2px;font-size:18px}
-.sheet textarea{font-family:var(--body);font-size:16px;min-height:90px}
 .swatches{display:flex;gap:12px;flex-wrap:wrap}
 .swatch{width:42px;height:42px;border-radius:50%;border:2px solid var(--line)}
 .swatch[aria-pressed="true"]{outline:3px solid var(--fg);outline-offset:3px}
@@ -141,7 +137,7 @@ button{cursor:pointer}
 .tips .tipgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line)}
 .tips .tipgrid div{background:var(--panel);padding:12px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
 .tips .tipgrid .k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.tips .tipgrid b{font-family:var(--display);font-size:24px;color:var(--tip);font-variant-numeric:tabular-nums}
+.tips .tipgrid b{display:block;white-space:nowrap;overflow:hidden;font-family:var(--display);font-size:24px;color:var(--tip);font-variant-numeric:tabular-nums}
 .tips .tiptop{display:flex;flex-wrap:wrap;gap:8px 16px;padding:12px 14px;font-size:14px;border-top:1px solid var(--line)}
 .tips .tiptop span{display:inline-flex;align-items:center;gap:6px}
 .tips .tiptop b{color:var(--tip)}
@@ -382,7 +378,7 @@ const ACCENTS={
   viola:{label:'Viola',d:'#ac8dff',l:'#6a45d6',inkD:'#1c0f3d',inkL:'#ffffff'},
   rosa:{label:'Rosa',d:'#ff7ab6',l:'#c2347a',inkD:'#3a0a20',inkL:'#ffffff'},
   giallo:{label:'Giallo',d:'#ffcf3f',l:'#a87700',inkD:'#2b2000',inkL:'#ffffff'}};
-const APP_VERSION='1.9.1';
+const APP_VERSION='1.9.3';
 let view={tab:'conta',day:today(),range:'day',editing:null,adding:false,confirm:null,importOpen:false,calMonth:today().slice(0,7),calSel:today()};
 
 const clientById=id=>S.clients.find(c=>c.id===id);
@@ -464,10 +460,10 @@ function applyImport(){
   const n=view.pendingImport;if(!n)return;
   try{localStorage.setItem(PREV_KEY,JSON.stringify({at:Date.now(),data:S}))}catch(e){}
   const {saved,...data}=n;S={...data,lastBackup:Date.now()};view.pendingImport=null;
-  save();applySkin();render();toast('Backup ripristinato');
+  closePast();save();applySkin();render();toast('Backup ripristinato');
 }
 function prevCopy(){try{const r=localStorage.getItem(PREV_KEY);return r?JSON.parse(r):null}catch(e){return null}}
-function undoImport(){const p=prevCopy();if(!p||!p.data)return;S=p.data;try{localStorage.removeItem(PREV_KEY)}catch(e){}save();applySkin();render();toast('Dati precedenti ripristinati')}
+function undoImport(){const p=prevCopy();if(!p||!p.data)return;S=p.data;try{localStorage.removeItem(PREV_KEY)}catch(e){}closePast();save();applySkin();render();toast('Dati precedenti ripristinati')}
 function dayNote(d,cid){return ((S.dayNotes||{})[d]||{})[cid]||''}
 function setDayNote(d,cid,txt){const m=S.dayNotes[d]||(S.dayNotes[d]={});if(txt)m[cid]=txt;else{delete m[cid];if(!Object.keys(m).length)delete S.dayNotes[d]}}
 function dayIds(d){
@@ -475,6 +471,10 @@ function dayIds(d){
   entriesOn(d).forEach(e=>{if(!ids.includes(e.clientId))ids.push(e.clientId)});
   return ids.filter(id=>clientById(id));
 }
+function closePast(){const t=today(),from=S.closedTo||'';if(from===t)return;
+  const days=new Set([...Object.keys(S.dayClients||{}),...S.entries.map(e=>e.day)]);
+  days.forEach(d=>{if(d<t&&d>=from){const ids=dayIds(d);if(ids.length)S.dayDone[d]=[...new Set([...(S.dayDone[d]||[]),...ids])]}});
+  S.closedTo=t;save()}
 function searchResults(raw){
   const q=raw.trim().toLowerCase(),active=new Set(dayIds(view.day));
   const list=S.clients.filter(c=>!active.has(c.id)&&(!q||(c.name+' '+(c.note||'')).toLowerCase().includes(q))).sort((a,b)=>a.name.localeCompare(b.name,isEN()?'en':'it'));
@@ -818,7 +818,11 @@ function render(){
   document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===view.tab));
   const sb=document.getElementById('setBtn');if(sb)sb.classList.toggle('on',view.tab==='set');
   if(view.adding){const i=document.getElementById('newName');i&&i.focus()}
+  fitNumbers();
 }
+function fitNumbers(){document.querySelectorAll('.totals .v,.tips .tipgrid b').forEach(el=>{el.style.fontSize='';let f=parseFloat(getComputedStyle(el).fontSize);
+  while(el.scrollWidth>el.clientWidth+1&&f>16){f-=2;el.style.fontSize=f+'px'}})}
+window.addEventListener('resize',()=>fitNumbers());
 
 function shiftDay(n){const d=parseDay(view.day);d.setDate(d.getDate()+n);const k=dayKey(d);if(k>today())return;view.day=k;render()}
 function copy(text,msg){
@@ -952,7 +956,7 @@ document.addEventListener('change',ev=>{
 let lastToday=today();
 function checkDay(){const t=today();if(t===lastToday)return;
   if(view.day===lastToday)view.day=t;if(view.calSel===lastToday)view.calSel=t;if(view.calMonth===lastToday.slice(0,7))view.calMonth=t.slice(0,7);
-  lastToday=t;render()}
+  lastToday=t;closePast();render()}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkDay()});
 window.addEventListener('focus',checkDay);setInterval(checkDay,60000);
 // new version ready (service worker found an update): offer a reload
@@ -962,6 +966,7 @@ try{if(navigator.serviceWorker){
 }}catch(e){}
 document.addEventListener('click',e=>{if(e.target.closest('#updBtn'))location.reload()});
 document.documentElement.lang=cfg().lang||'it';
+closePast();
 applySkin();
 render();
 })();

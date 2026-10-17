@@ -17,7 +17,8 @@ Packing helps you keep track of how many parachutes you pack, for whom, and how 
 - **Payments & "black list"** – Record payments with method (cash, bank transfer, PayPal, etc.) and instantly see who still owes you money.
 - **Tips** – Extra money is tracked separately as tips, with monthly, yearly and total counters.
 - **Calendar** – Mark your working days, add notes, and send them to Google Calendar or any phone calendar (.ics).
-- **Notes** – Permanent notes per client (canopy, preferences, agreements) and daily notes per client.
+- **Finished clients** – Move clients who are done jumping to the bottom of the day with one tap (automatic when they pay in full).
+- **Notes** – Permanent notes per client (canopy, preferences, agreements), shown on their band while you pack.
 - **Italian & English** – Switch language anytime in Settings; dates and currency follow the chosen language.
 - **Settings** – Your name, default price, payment methods, light/dark theme, accent color, vibration, double-tap protection and backup reminders.
 - **Backup & restore** – Send a backup file to yourself by email or save it to Drive, and restore it on a new phone.

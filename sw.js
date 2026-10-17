@@ -1,6 +1,6 @@
 // Packing service worker: open instantly from the saved copy, refresh it in the background,
 // and let the app know when a newer version has been downloaded.
-const CACHE='packing-v28';
+const CACHE='packing-v30';
 const FILES=['./','index.html','manifest.webmanifest','icon-192.png','icon-512.png','icon-maskable-512.png','apple-touch-icon.png'];
 const FLAG='./__packing_new_version';
 const verOf=t=>(String(t).match(/APP_VERSION='([^']+)'/)||[])[1]||'';
