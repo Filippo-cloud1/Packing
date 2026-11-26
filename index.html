@@ -29,14 +29,14 @@
 @media (prefers-color-scheme: light){
   :root:not([data-skin="dark"]){
     --bg:#edf3f8; --panel:#ffffff; --panel-2:#e2ecf5; --line:#cddbe8;
-    --fg:#0c2136; --muted:#567089; --accent:#0a8ec0; --accent-ink:#ffffff; --accent-soft:rgba(10,142,192,.12);
-    --warn:#d4601c; --ok:#178a55; --danger:#c93636; --bar:#ffffff; color-scheme:light;
+    --fg:#0c2136; --muted:#567089; --accent:#086e94; --accent-ink:#ffffff; --accent-soft:rgba(8,110,148,.12);
+    --warn:#a74c16; --ok:#147649; --danger:#bf3333; --bar:#ffffff; color-scheme:light;
   }
 }
 :root[data-skin="light"]{
   --bg:#edf3f8; --panel:#ffffff; --panel-2:#e2ecf5; --line:#cddbe8;
-  --fg:#0c2136; --muted:#567089; --accent:#0a8ec0; --accent-ink:#ffffff; --accent-soft:rgba(10,142,192,.12);
-  --warn:#d4601c; --ok:#178a55; --danger:#c93636; --bar:#ffffff; color-scheme:light;
+  --fg:#0c2136; --muted:#567089; --accent:#086e94; --accent-ink:#ffffff; --accent-soft:rgba(8,110,148,.12);
+  --warn:#a74c16; --ok:#147649; --danger:#bf3333; --bar:#ffffff; color-scheme:light;
 }
 
 /* brand header */
@@ -66,38 +66,39 @@ button{cursor:pointer}
 .totals .k{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .totals .v{font-family:var(--display);font-weight:700;font-size:40px;line-height:1.05;font-variant-numeric:tabular-nums;white-space:nowrap}
 .totals .v.eur{color:var(--accent)}
+.totals .v.due{color:var(--warn)}
 
 .banner{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px dashed var(--accent);border-radius:12px;padding:10px 14px;color:var(--muted);font-size:14px}
-.banner button{background:none;border:0;color:var(--accent);font-weight:600;padding:4px 0}
+.banner button{background:none;border:0;color:var(--accent);font-weight:600;padding:4px 0;min-height:44px}
 
 /* client tiles */
 /* client bands on the Conta page: name/notes left, count, small actions, big + */
 .tiles{display:grid;grid-template-columns:1fr;gap:10px}
 .tile-wrap{position:relative;display:flex}
-.tile{position:relative;overflow:hidden;width:100%;display:flex;align-items:center;gap:12px;min-height:104px;padding:12px 140px 12px 16px;border-radius:18px;border:1px solid var(--line);background:var(--panel);text-align:left;transition:transform .08s,background .25s,border-color .25s}
+.tile{position:relative;overflow:hidden;width:100%;display:flex;align-items:center;gap:12px;min-height:120px;padding:12px 84px 68px 16px;border-radius:18px;border:1px solid var(--line);background:var(--panel);text-align:left;transition:transform .08s,background .25s,border-color .25s}
 .tile:active{transform:scale(.97)}
 .tile.bump{background:var(--accent-soft);border-color:var(--accent)}
-.tile .tl{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.tile .tl{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;align-self:flex-start}
 .tile .name{font-weight:600;font-size:19px;line-height:1.2;overflow-wrap:anywhere}
 .tile .cnote{font-size:15px;line-height:1.3;color:var(--fg);opacity:.82;white-space:pre-line;overflow-wrap:anywhere}
 .tile .tc{display:flex;flex-direction:column;align-items:flex-end;flex:none}
-.tile .count{font-family:var(--display);font-weight:700;font-size:52px;line-height:.9;font-variant-numeric:tabular-nums;color:var(--accent)}
+.tile .count{font-family:var(--display);font-weight:700;font-size:52px;line-height:.9;font-variant-numeric:tabular-nums;color:var(--fg)}
 .tile.zero .count{color:var(--muted)}
 .tile .sub{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
 .tile .plus{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:58px;height:58px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700;font-size:32px;line-height:1}
-.tile .fly{position:absolute;right:150px;top:8px;font-family:var(--display);font-weight:700;font-size:28px;color:var(--accent);pointer-events:none;animation:fly .7s ease-out forwards}
+.tile .fly{position:absolute;right:96px;top:8px;font-family:var(--display);font-weight:700;font-size:28px;color:var(--accent);pointer-events:none;animation:fly .7s ease-out forwards}
 .tile .count.pop{animation:pop .3s ease-out}
 @keyframes fly{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-46px)}}
 @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
-.minus{width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--muted);font-size:20px;line-height:1;display:grid;place-items:center;flex:none}
-.tile-wrap>.minus{position:absolute;right:84px;top:14px}
-.tile-wrap>.minus.donebtn{top:auto;bottom:14px;color:var(--ok)}
+.minus{width:44px;height:44px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--muted);font-size:20px;line-height:1;display:grid;place-items:center;flex:none}
+.tile-wrap>.minus{position:absolute;left:16px;bottom:12px}
+.tile-wrap>.minus.donebtn{left:68px;color:var(--ok)}
 .clip1,.clip3{display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}
 .clip1{-webkit-line-clamp:1}.clip3{-webkit-line-clamp:3}
 .note-in{min-height:0;font-family:var(--body);font-size:14px}
 .crow{border-top:1px solid var(--line)}.crow:first-child{border-top:0}
 .swatches{display:flex;gap:12px;flex-wrap:wrap}
-.swatch{width:42px;height:42px;border-radius:50%;border:2px solid var(--line)}
+.swatch{width:44px;height:44px;border-radius:50%;border:2px solid var(--line)}
 .swatch[aria-pressed="true"]{outline:3px solid var(--fg);outline-offset:3px}
 .themebtn.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
 .btn.small{padding:6px 10px;font-size:13px}
@@ -173,10 +174,10 @@ h2{font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.14e
 .small{font-size:13px}
 
 .seg{display:flex;gap:6px;flex-wrap:wrap}
-.seg button{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:8px 14px;font-size:14px}
+.seg button{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:8px 16px;font-size:14px;min-height:44px}
 .seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
 
-.btn{border:1px solid var(--line);background:var(--panel-2);border-radius:10px;padding:10px 14px;font-weight:600}
+.btn{border:1px solid var(--line);background:var(--panel-2);border-radius:10px;padding:10px 14px;font-weight:600;min-height:44px}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .btn.danger{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 45%,var(--line))}
 .btn.ghost{background:none}
@@ -216,8 +217,8 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--mu
 a.btn{text-decoration:none;display:inline-block;color:var(--accent)}
 .sw-n{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:4px;border:1px solid var(--line);background:var(--panel);font-style:normal;font-size:11px;font-weight:700;color:var(--ok)}
 .pill{display:inline-block;border-radius:999px;padding:3px 10px;font-size:13px;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
-.pill.due{background:color-mix(in srgb,var(--warn) 18%,var(--panel));color:var(--warn)}
-.pill.ok{background:color-mix(in srgb,var(--ok) 16%,var(--panel));color:var(--ok)}
+.pill.due{background:color-mix(in srgb,var(--warn) 12%,var(--panel));color:var(--warn)}
+.pill.ok{background:color-mix(in srgb,var(--ok) 10%,var(--panel));color:var(--ok)}
 .pill.cred{background:var(--panel-2);color:var(--muted)}
 .paybox{display:flex;flex-direction:column;gap:10px;padding:0 14px 14px;border-top:1px dashed var(--line);padding-top:12px}
 
@@ -372,13 +373,13 @@ const SET_DEFAULTS={lang:((navigator.language||'it').toLowerCase().startsWith('i
 S.set=Object.assign({},SET_DEFAULTS,S.set||{});
 const cfg=()=>S.set;
 const ACCENTS={
-  azzurro:{label:'Azzurro',d:'#2cc0e8',l:'#0a8ec0',inkD:'#03202c',inkL:'#ffffff'},
-  verde:{label:'Verde',d:'#4fd49a',l:'#16865a',inkD:'#04241a',inkL:'#ffffff'},
-  arancione:{label:'Arancione',d:'#ff8a4c',l:'#c9581a',inkD:'#2a1003',inkL:'#ffffff'},
+  azzurro:{label:'Azzurro',d:'#2cc0e8',l:'#086e94',inkD:'#03202c',inkL:'#ffffff'},
+  verde:{label:'Verde',d:'#4fd49a',l:'#13744e',inkD:'#04241a',inkL:'#ffffff'},
+  arancione:{label:'Arancione',d:'#ff8a4c',l:'#a94a16',inkD:'#2a1003',inkL:'#ffffff'},
   viola:{label:'Viola',d:'#ac8dff',l:'#6a45d6',inkD:'#1c0f3d',inkL:'#ffffff'},
-  rosa:{label:'Rosa',d:'#ff7ab6',l:'#c2347a',inkD:'#3a0a20',inkL:'#ffffff'},
-  giallo:{label:'Giallo',d:'#ffcf3f',l:'#a87700',inkD:'#2b2000',inkL:'#ffffff'}};
-const APP_VERSION='1.9.3';
+  rosa:{label:'Rosa',d:'#ff7ab6',l:'#b83174',inkD:'#3a0a20',inkL:'#ffffff'},
+  giallo:{label:'Giallo',d:'#ffcf3f',l:'#876000',inkD:'#2b2000',inkL:'#ffffff'}};
+const APP_VERSION='1.10';
 let view={tab:'conta',day:today(),range:'day',editing:null,adding:false,confirm:null,importOpen:false,calMonth:today().slice(0,7),calSel:today()};
 
 const clientById=id=>S.clients.find(c=>c.id===id);
@@ -801,7 +802,7 @@ function renderPag(){
   const hist=[...S.payments].sort((a,b)=>b.ts-a.ts).slice(0,30).map(p=>{const c=clientById(p.clientId);
     return `<div class="row"><span class="grow">${esc(c?c.name:'Cliente eliminato')}<br><span class="muted small">${fmtDay(p.day)} · ${esc(tm(p.method))}${p.tip?` · <span class="tipc">${p.tip===p.amount?'mancia':'di cui mancia '+eur(p.tip)}</span>`:''}</span></span><span class="num">${eur(p.amount)}</span>
     <button class="minus" style="position:static;flex:none" data-act="delPay" data-id="${p.id}" aria-label="Elimina pagamento">×</button></div>`}).join('');
-  return `<div class="totals"><div><div class="k">Da incassare</div><div class="v eur">${eur(totDue)}</div></div><div><div class="k">Clienti in debito</div><div class="v">${debtors}</div></div></div>
+  return `<div class="totals"><div><div class="k">Da incassare</div><div class="v due">${eur(totDue)}</div></div><div><div class="k">Clienti in debito</div><div class="v">${debtors}</div></div></div>
   <h2>Lista nera</h2>
   <p class="muted small" style="margin:0">Il saldo considera tutti i ripiegamenti segnati meno i pagamenti ricevuti.</p>
   ${list.length?`<div class="card">${rows}</div>`:`<div class="empty">Nessuno ti deve soldi. Tutti i clienti sono in pari.</div>`}
