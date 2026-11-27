@@ -1,6 +1,6 @@
 // Packing service worker: open instantly from the saved copy, refresh it in the background,
 // and let the app know when a newer version has been downloaded.
-const CACHE='packing-v31';
+const CACHE='packing-v33';
 const FILES=['./','index.html','manifest.webmanifest','icon-192.png','icon-512.png','icon-maskable-512.png','apple-touch-icon.png'];
 const FLAG='./__packing_new_version';
 const verOf=t=>(String(t).match(/APP_VERSION='([^']+)'/)||[])[1]||'';
@@ -8,7 +8,7 @@ async function markNew(text){const v=verOf(text);if(!v)return;const c=await cach
   (await self.clients.matchAll({includeUncontrolled:true})).forEach(cl=>cl.postMessage({t:'packing-updated',v}))}
 
 // Google Fonts used by index.html: saved at install so the app keeps its look offline from the very first launch.
-const FONT_CSS='https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap';
+const FONT_CSS='https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap';
 async function cacheFonts(c){try{
   const res=await fetch(FONT_CSS,{mode:'cors'});if(!res.ok)return;const css=await res.clone().text();await c.put(FONT_CSS,res);
   const urls=[...css.matchAll(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/g)].map(m=>m[1]);

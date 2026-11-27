@@ -11,8 +11,10 @@ Packing helps you keep track of how many parachutes you pack, for whom, and how 
 ## Features
 
 - **Daily counter** – Start each day empty, add the clients you're packing for, and tap their tile to count +1 pack. Made a mistake? Tap − to undo.
+- **Day log** – Every pack of the day with its time, client and price, newest first; delete a single pack with ×.
+- **Who owes you, while you count** – An «Owes €…» badge on each client's tile, and on the Clients page a line with packs, average price and balance.
 - **Earnings at a glance** – See today's packs and the money due, with a default price per pack (e.g. €6) and custom prices per client or per single pack.
-- **Summaries** – Totals per client by day, week, month or all time, plus a monthly earnings chart.
+- **Money page** – What you're owed, payments and tips, plus collapsible summaries: totals per client by day, week, month or all time, plus a monthly earnings chart.
 - **Client ranking** – A podium of your top clients by earnings; tap a client to see packs, working days, average per day, amount owed and trend vs the previous period.
 - **Payments & "black list"** – Record payments with method (cash, bank transfer, PayPal, etc.) and instantly see who still owes you money.
 - **Tips** – Extra money is tracked separately as tips, with monthly, yearly and total counters.
@@ -20,7 +22,7 @@ Packing helps you keep track of how many parachutes you pack, for whom, and how 
 - **Finished clients** – Move clients who are done jumping to the bottom of the day with one tap (automatic when they pay in full).
 - **Notes** – Permanent notes per client (canopy, preferences, agreements), shown on their band while you pack.
 - **Italian & English** – Switch language anytime in Settings; dates and currency follow the chosen language.
-- **Settings** – Your name, default price, payment methods, light/dark theme, accent color, vibration, double-tap protection and backup reminders.
+- **Settings** – Your name, default price, payment methods, light/dark theme (warm «Tramonto» look), accent color, vibration, double-tap protection and backup reminders.
 - **Backup & restore** – Send a backup file to yourself by email or save it to Drive, and restore it on a new phone.
 
 ## Install on your phone
